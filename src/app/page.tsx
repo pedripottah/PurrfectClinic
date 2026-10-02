@@ -142,45 +142,51 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-amber-50/50 via-white to-orange-50/30 text-stone-800 pb-16">
+    <main className="min-h-screen text-slate-800 pb-16 relative overflow-hidden">
+      {/* Cute Floating Background Elements */}
+      <div className="absolute top-20 left-10 text-4xl animate-float opacity-40 pointer-events-none" style={{ animationDelay: '0s' }}>🐾</div>
+      <div className="absolute top-40 right-20 text-4xl animate-float opacity-40 pointer-events-none" style={{ animationDelay: '1s' }}>✨</div>
+      <div className="absolute bottom-40 left-32 text-3xl animate-float opacity-30 pointer-events-none" style={{ animationDelay: '2s' }}>🦴</div>
+      <div className="absolute top-80 right-10 text-5xl animate-float opacity-20 pointer-events-none" style={{ animationDelay: '1.5s' }}>🐟</div>
+      
       {/* Top Navbar */}
-      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-stone-200">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-white shadow-md shadow-amber-500/20">
-              🐾
+      <header className="sticky top-0 z-30 glass-nav mb-8">
+        <div className="max-w-5xl mx-auto px-4 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-pink-400 to-orange-300 flex items-center justify-center text-white shadow-lg shadow-pink-500/30 animate-pulse-slow">
+              <span className="text-xl">🐾</span>
             </div>
             <div>
-              <span className="font-bold text-lg tracking-tight text-stone-900">PurrfectClinic</span>
-              <span className="hidden sm:inline-block ml-2 text-xs bg-amber-100 text-amber-800 font-medium px-2 py-0.5 rounded-full">
-                Pet Wellness
+              <span className="font-extrabold text-xl tracking-tight text-slate-800 drop-shadow-sm">PurrfectClinic</span>
+              <span className="hidden sm:inline-block ml-3 text-xs bg-white/60 backdrop-blur-sm text-pink-700 font-bold px-3 py-1 rounded-full border border-pink-200/50 shadow-sm">
+                Pet Wellness Spa
               </span>
             </div>
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex items-center bg-stone-100 p-1 rounded-xl">
+          <div className="flex items-center bg-white/40 backdrop-blur-md p-1.5 rounded-2xl border border-white/50 shadow-inner">
             <button
               onClick={() => setActiveTab("book")}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              className={`px-5 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
                 activeTab === "book"
-                  ? "bg-white text-stone-900 shadow-sm"
-                  : "text-stone-600 hover:text-stone-900"
+                  ? "bg-white text-pink-600 shadow-md transform scale-105"
+                  : "text-slate-500 hover:text-slate-800 hover:bg-white/50"
               }`}
             >
               Book Service
             </button>
             <button
               onClick={() => setActiveTab("manage")}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 ${
+              className={`px-5 py-2 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${
                 activeTab === "manage"
-                  ? "bg-white text-stone-900 shadow-sm"
-                  : "text-stone-600 hover:text-stone-900"
+                  ? "bg-white text-pink-600 shadow-md transform scale-105"
+                  : "text-slate-500 hover:text-slate-800 hover:bg-white/50"
               }`}
             >
               <span>Appointments</span>
               {savedBookings.length > 0 && (
-                <span className="bg-amber-500 text-white text-[11px] font-bold px-1.5 py-0.2 rounded-full">
+                <span className="bg-gradient-to-r from-pink-400 to-orange-400 text-white text-[11px] font-black px-2 py-0.5 rounded-full shadow-sm animate-pulse-slow">
                   {savedBookings.length}
                 </span>
               )}
@@ -196,41 +202,41 @@ export default function Home() {
           <div>
             {/* Header intro banner */}
             {step < 4 && (
-              <div className="text-center mb-8">
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight">
-                  Pamper Your Furry Best Friend
+              <div className="text-center mb-10 animate-fade-up">
+                <h1 className="text-4xl sm:text-5xl font-black text-slate-800 tracking-tight drop-shadow-sm mb-4">
+                  Pamper Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400 animate-pulse-slow">Furry Best Friend</span>
                 </h1>
-                <p className="text-stone-600 mt-2 text-sm sm:text-base max-w-lg mx-auto">
+                <p className="text-slate-600 text-sm sm:text-lg max-w-xl mx-auto font-medium">
                   Certified groomers, 100% organic shampoos, and stress-free spa treatments.
                 </p>
 
                 {/* Progress Indicators */}
-                <div className="flex items-center justify-center gap-2 sm:gap-4 mt-6">
+                <div className="flex items-center justify-center gap-2 sm:gap-4 mt-8">
                   {[
                     { num: 1, label: "Select Service" },
                     { num: 2, label: "Date & Time" },
-                    { num: 3, label: "Pet & Contact" },
+                    { num: 3, label: "Pet Details" },
                   ].map((s) => (
                     <div key={s.num} className="flex items-center gap-2">
                       <div
-                        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500 ${
                           step === s.num
-                            ? "bg-amber-500 text-white shadow-md ring-4 ring-amber-100"
+                            ? "bg-gradient-to-tr from-pink-500 to-orange-400 text-white shadow-lg shadow-pink-500/30 ring-4 ring-pink-100 transform scale-110"
                             : step > s.num
-                            ? "bg-emerald-500 text-white"
-                            : "bg-stone-200 text-stone-500"
+                            ? "bg-slate-800 text-white"
+                            : "bg-white text-slate-400 shadow-sm"
                         }`}
                       >
                         {step > s.num ? "✓" : s.num}
                       </div>
                       <span
-                        className={`text-xs hidden sm:inline font-medium ${
-                          step >= s.num ? "text-stone-800" : "text-stone-400"
+                        className={`text-xs hidden sm:inline font-bold transition-colors duration-300 ${
+                          step >= s.num ? "text-slate-800" : "text-slate-400"
                         }`}
                       >
                         {s.label}
                       </span>
-                      {s.num < 3 && <div className="w-6 sm:w-10 h-0.5 bg-stone-200" />}
+                      {s.num < 3 && <div className={`w-8 sm:w-12 h-1 rounded-full transition-colors duration-500 ${step > s.num ? "bg-slate-800" : "bg-white shadow-inner"}`} />}
                     </div>
                   ))}
                 </div>
@@ -239,89 +245,89 @@ export default function Home() {
 
             {/* STEP 1: SERVICE & PET TYPE */}
             {step === 1 && (
-              <section className="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 sm:p-8 animate-fadeIn">
-                <div className="mb-6">
-                  <label className="text-xs font-bold uppercase tracking-wider text-stone-500 block mb-2.5">
-                    1. Choose Pet Type
+              <section className="glass-panel rounded-3xl p-6 sm:p-10 animate-fade-up relative z-10">
+                <div className="mb-8">
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-3">
+                    1. Who is getting pampered?
                   </label>
-                  <div className="grid grid-cols-2 gap-3 max-w-md">
+                  <div className="grid grid-cols-2 gap-4 max-w-md">
                     <button
                       type="button"
                       onClick={() => setPetType("dog")}
-                      className={`flex items-center justify-center gap-2.5 p-3.5 rounded-xl border-2 font-medium transition-all ${
+                      className={`flex items-center justify-center gap-3 p-4 rounded-2xl border-2 font-bold transition-all duration-300 ${
                         petType === "dog"
-                          ? "border-amber-500 bg-amber-50/50 text-amber-900"
-                          : "border-stone-200 hover:border-stone-300 text-stone-700"
+                          ? "border-pink-400 bg-white shadow-lg shadow-pink-100 transform scale-105 text-slate-800"
+                          : "border-white/60 bg-white/40 hover:bg-white hover:border-pink-200 text-slate-500 hover:shadow-md"
                       }`}
                     >
-                      <Dog className="w-5 h-5 text-amber-600" />
+                      <Dog className={`w-6 h-6 transition-colors ${petType === "dog" ? "text-pink-500" : "text-slate-400"}`} />
                       <span>Dog</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setPetType("cat")}
-                      className={`flex items-center justify-center gap-2.5 p-3.5 rounded-xl border-2 font-medium transition-all ${
+                      className={`flex items-center justify-center gap-3 p-4 rounded-2xl border-2 font-bold transition-all duration-300 ${
                         petType === "cat"
-                          ? "border-amber-500 bg-amber-50/50 text-amber-900"
-                          : "border-stone-200 hover:border-stone-300 text-stone-700"
+                          ? "border-pink-400 bg-white shadow-lg shadow-pink-100 transform scale-105 text-slate-800"
+                          : "border-white/60 bg-white/40 hover:bg-white hover:border-pink-200 text-slate-500 hover:shadow-md"
                       }`}
                     >
-                      <Cat className="w-5 h-5 text-amber-600" />
+                      <Cat className={`w-6 h-6 transition-colors ${petType === "cat" ? "text-pink-500" : "text-slate-400"}`} />
                       <span>Cat</span>
                     </button>
                   </div>
                 </div>
 
-                <div className="mb-6">
-                  <label className="text-xs font-bold uppercase tracking-wider text-stone-500 block mb-3">
+                <div className="mb-8">
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-4">
                     2. Select Spa Service
                   </label>
-                  <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="grid sm:grid-cols-2 gap-5">
                     {SPA_SERVICES.map((srv) => {
                       const isSelected = selectedService.id === srv.id;
                       return (
                         <div
                           key={srv.id}
                           onClick={() => setSelectedService(srv)}
-                          className={`relative cursor-pointer rounded-xl border-2 p-4 transition-all duration-200 flex flex-col justify-between ${
+                          className={`relative cursor-pointer rounded-3xl border-2 p-5 transition-all duration-300 flex flex-col justify-between ${
                             isSelected
-                              ? "border-amber-500 bg-amber-50/30 shadow-md ring-2 ring-amber-500/10"
-                              : "border-stone-200 hover:border-stone-300 bg-white"
+                              ? "border-pink-400 bg-white shadow-xl shadow-pink-100 transform -translate-y-1"
+                              : "border-white/60 bg-white/50 hover:bg-white hover:border-pink-200 hover:shadow-lg hover:-translate-y-1"
                           }`}
                         >
                           {srv.popular && (
-                            <span className="absolute -top-2.5 right-4 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wide">
+                            <span className="absolute -top-3 right-5 bg-gradient-to-r from-pink-500 to-orange-400 text-white text-[10px] font-black px-3 py-1 rounded-full tracking-wider shadow-sm animate-pulse-slow">
                               POPULAR
                             </span>
                           )}
                           <div>
-                            <div className="flex items-center gap-3 mb-2">
-                              <div className="p-2 rounded-lg bg-stone-100">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className={`p-3 rounded-2xl transition-colors duration-300 ${isSelected ? "bg-pink-50" : "bg-white shadow-sm"}`}>
                                 {renderServiceIcon(srv.iconName)}
                               </div>
                               <div>
-                                <h3 className="font-bold text-stone-900">{srv.name}</h3>
-                                <span className="text-xs text-stone-500 flex items-center gap-1 mt-0.5">
+                                <h3 className="font-extrabold text-slate-800 text-lg">{srv.name}</h3>
+                                <span className="text-xs text-slate-400 flex items-center gap-1 font-semibold mt-0.5">
                                   <Clock3 className="w-3.5 h-3.5" /> {srv.duration}
                                 </span>
                               </div>
                             </div>
-                            <p className="text-xs text-stone-600 mt-2 leading-relaxed">
+                            <p className="text-sm text-slate-500 mt-2 leading-relaxed font-medium">
                               {srv.description}
                             </p>
                           </div>
-                          <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
-                            <span className="text-lg font-black text-amber-600">
+                          <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+                            <span className="text-xl font-black text-slate-800">
                               ${srv.price}
                             </span>
                             <div
-                              className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                              className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
                                 isSelected
-                                  ? "border-amber-500 bg-amber-500 text-white"
-                                  : "border-stone-300"
+                                  ? "border-pink-500 bg-pink-500 text-white scale-110"
+                                  : "border-slate-300 bg-transparent"
                               }`}
                             >
-                              {isSelected && <span className="text-xs">✓</span>}
+                              {isSelected && <span className="text-sm font-bold">✓</span>}
                             </div>
                           </div>
                         </div>
@@ -330,11 +336,11 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="flex justify-end pt-4 border-t border-stone-100">
+                <div className="flex justify-end pt-2">
                   <button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-xl font-semibold shadow-md transition-all cursor-pointer"
+                    className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
                   >
                     <span>Choose Date & Time</span>
                     <ArrowRight className="w-4 h-4" />
