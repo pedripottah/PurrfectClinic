@@ -19,11 +19,153 @@ import {
   Trash2,
   MapPin,
   Clock3,
+  Globe,
 } from "lucide-react";
 import { SPA_SERVICES, AVAILABLE_TIME_SLOTS } from "../data/services";
 import { SpaService, PetType, Booking } from "../types/booking";
 
+// Localization Dictionary
+const DICT = {
+  en: {
+    title: "Take care of your",
+    titleHighlight: "best friend",
+    subtitle: "Certified groomers, 100% organic shampoos, and stress-free spa treatments.",
+    bookService: "Book Service",
+    appointments: "Appointments",
+    petWellness: "Pet Wellness Spa",
+    step1: "Select Service",
+    step2: "Date & Time",
+    step3: "Pet Details",
+    choosePet: "1. Who needs care?",
+    dog: "Dog",
+    cat: "Cat",
+    selectService: "2. Select Spa Service",
+    popular: "POPULAR",
+    chooseDateTime: "Choose Date & Time",
+    pickDateTime: "Pick Date & Time",
+    selectSlotFor: "Select your preferred grooming slot for",
+    apptDate: "Appointment Date",
+    availSlot: "Available Time Slot",
+    back: "Back",
+    ownerPetDetails: "Owner & Pet Details",
+    almostDone: "Almost done! Tell us who we will be caring for.",
+    petInfo: "Pet Information",
+    petName: "Pet Name *",
+    petNamePh: "e.g. Milo, Luna",
+    breed: "Breed / Coat Type",
+    breedPh: "e.g. Poodle, British Shorthair",
+    contactInfo: "Contact Information",
+    fullName: "Your Full Name *",
+    fullNamePh: "Your name",
+    phone: "Phone Number *",
+    phonePh: "e.g. 0912 345 678",
+    notes: "Special Instructions / Pet Temperament",
+    notesPh: "e.g. Nervous around loud hair dryers, sensitive skin...",
+    total: "Total:",
+    confirm: "Confirm Booking",
+    confirmed: "Booking Confirmed!",
+    lookForward: "We look forward to seeing",
+    soon: "soon!",
+    bookingId: "Booking ID:",
+    service: "Service:",
+    dateSlot: "Date & Slot:",
+    customer: "Customer:",
+    estTotal: "Estimated Total:",
+    bookAnother: "Book Another Pet",
+    viewAll: "View All Appointments",
+    manageAppt: "Manage Appointments",
+    manageDesc: "View and manage current spa booking records (stored in local browser).",
+    newBooking: "+ New Booking",
+    noAppt: "No appointments booked yet.",
+    bookFirst: "Book your first pet spa session now!",
+    confirmedTag: "Confirmed",
+    note: "Note:"
+  },
+  vi: {
+    title: "Chăm sóc",
+    titleHighlight: "người bạn nhỏ",
+    subtitle: "Chuyên viên chải chuốt, dầu gội 100% hữu cơ, và liệu trình spa thư giãn.",
+    bookService: "Đặt lịch",
+    appointments: "Lịch hẹn",
+    petWellness: "Spa Thú Cưng",
+    step1: "Chọn Dịch Vụ",
+    step2: "Ngày & Giờ",
+    step3: "Thông Tin",
+    choosePet: "1. Ai cần được chăm sóc?",
+    dog: "Chó",
+    cat: "Mèo",
+    selectService: "2. Chọn Dịch Vụ Spa",
+    popular: "PHỔ BIẾN",
+    chooseDateTime: "Chọn Ngày & Giờ",
+    pickDateTime: "Chọn Ngày & Giờ",
+    selectSlotFor: "Chọn khung giờ lý tưởng cho",
+    apptDate: "Ngày Hẹn",
+    availSlot: "Khung Giờ Trống",
+    back: "Quay lại",
+    ownerPetDetails: "Thông Tin Liên Hệ",
+    almostDone: "Sắp xong rồi! Hãy cho chúng tôi biết thông tin nhé.",
+    petInfo: "Thông Tin Thú Cưng",
+    petName: "Tên Thú Cưng *",
+    petNamePh: "vd: Milo, Luna",
+    breed: "Giống / Loại Lông",
+    breedPh: "vd: Poodle, Mèo Anh Lông Ngắn",
+    contactInfo: "Thông Tin Khách Hàng",
+    fullName: "Họ và Tên *",
+    fullNamePh: "Tên của bạn",
+    phone: "Số Điện Thoại *",
+    phonePh: "vd: 0912 345 678",
+    notes: "Ghi chú đặc biệt / Tính cách thú cưng",
+    notesPh: "vd: Hay sợ tiếng máy sấy, da nhạy cảm...",
+    total: "Tổng cộng:",
+    confirm: "Xác Nhận Đặt Lịch",
+    confirmed: "Đã Xác Nhận Lịch Hẹn!",
+    lookForward: "Chúng tôi rất mong được đón tiếp",
+    soon: "sớm!",
+    bookingId: "Mã Đặt Lịch:",
+    service: "Dịch Vụ:",
+    dateSlot: "Ngày & Giờ:",
+    customer: "Khách Hàng:",
+    estTotal: "Tổng Ước Tính:",
+    bookAnother: "Đặt Lịch Khác",
+    viewAll: "Xem Tất Cả Lịch Hẹn",
+    manageAppt: "Quản Lý Lịch Hẹn",
+    manageDesc: "Xem và quản lý hồ sơ lịch hẹn spa (lưu trên trình duyệt cục bộ).",
+    newBooking: "+ Đặt Lịch Mới",
+    noAppt: "Chưa có lịch hẹn nào.",
+    bookFirst: "Hãy đặt lịch spa đầu tiên cho thú cưng ngay!",
+    confirmedTag: "Đã xác nhận",
+    note: "Ghi chú:"
+  }
+};
+
+// Map services for translation
+const translateService = (id: string, lang: "en" | "vi") => {
+  if (lang === "en") return SPA_SERVICES.find(s => s.id === id)?.name;
+  const viMap: Record<string, string> = {
+    'bath-fluff': 'Tắm Thảo Dược & Sấy Khô',
+    'full-groom': 'Gói Cắt Tỉa Hoàng Gia',
+    'paw-nail-care': 'Cắt Móng & Chăm Sóc Đệm Chân',
+    'spa-massage': 'Spa Thư Giãn & Massage'
+  };
+  return viMap[id] || SPA_SERVICES.find(s => s.id === id)?.name;
+};
+
+const translateDesc = (id: string, lang: "en" | "vi") => {
+  if (lang === "en") return SPA_SERVICES.find(s => s.id === id)?.description;
+  const viMap: Record<string, string> = {
+    'bath-fluff': 'Dầu gội hữu cơ dịu nhẹ, vệ sinh tai, sấy khô kỹ lưỡng và xịt thơm hương oải hương.',
+    'full-groom': 'Tắm toàn thân, cắt tỉa tạo kiểu, vệ sinh cơ bản, cắt móng, dưỡng đệm chân & đánh răng.',
+    'paw-nail-care': 'Cắt móng chuẩn xác, mài nhẵn, dưỡng ẩm đệm chân và gỡ rối lông cục bộ.',
+    'spa-massage': 'Ngâm bồn thảo mộc làm dịu da & lông kết hợp massage thư giãn cơ bắp nhẹ nhàng.'
+  };
+  return viMap[id] || SPA_SERVICES.find(s => s.id === id)?.description;
+};
+
 export default function Home() {
+  // Language State
+  const [lang, setLang] = useState<"en" | "vi">("en");
+  const t = DICT[lang];
+
   // Navigation tab: 'book' or 'manage'
   const [activeTab, setActiveTab] = useState<"book" | "manage">("book");
 
@@ -51,7 +193,7 @@ export default function Home() {
   // Load bookings from localStorage on mount
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("PurrfectClinic_bookings");
+      const stored = localStorage.getItem("purrfectclinic_bookings");
       if (stored) {
         setSavedBookings(JSON.parse(stored));
       }
@@ -70,7 +212,7 @@ export default function Home() {
   const saveBookingsToStorage = (updated: Booking[]) => {
     setSavedBookings(updated);
     try {
-      localStorage.setItem("PurrfectClinic_bookings", JSON.stringify(updated));
+      localStorage.setItem("purrfectclinic_bookings", JSON.stringify(updated));
     } catch {
       console.error("Could not save to local storage");
     }
@@ -81,7 +223,7 @@ export default function Home() {
     e.preventDefault();
 
     if (!petName.trim() || !ownerName.trim() || !ownerPhone.trim()) {
-      alert("Please fill in your name, phone number, and pet's name.");
+      alert("Please fill in required fields.");
       return;
     }
 
@@ -135,7 +277,7 @@ export default function Home() {
       case "scissors":
         return <Scissors className="w-6 h-6 text-purple-500" />;
       case "sparkles":
-        return <Sparkles className="w-6 h-6 text-amber-500" />;
+        return <Sparkles className="w-6 h-6 text-pink-500" />;
       default:
         return <Heart className="w-6 h-6 text-rose-500" />;
     }
@@ -159,44 +301,54 @@ export default function Home() {
             <div>
               <span className="font-extrabold text-xl tracking-tight text-slate-800 drop-shadow-sm">PurrfectClinic</span>
               <span className="hidden sm:inline-block ml-3 text-xs bg-white/60 backdrop-blur-sm text-pink-700 font-bold px-3 py-1 rounded-full border border-pink-200/50 shadow-sm">
-                Pet Wellness Spa
+                {t.petWellness}
               </span>
             </div>
           </div>
 
-          {/* Navigation Tabs */}
-          <div className="flex items-center bg-white/40 backdrop-blur-md p-1.5 rounded-2xl border border-white/50 shadow-inner">
+          {/* Navigation Tabs & Language Toggle */}
+          <div className="flex items-center gap-3">
             <button
-              onClick={() => setActiveTab("book")}
-              className={`px-5 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
-                activeTab === "book"
-                  ? "bg-white text-pink-600 shadow-md transform scale-105"
-                  : "text-slate-500 hover:text-slate-800 hover:bg-white/50"
-              }`}
+              onClick={() => setLang(lang === "en" ? "vi" : "en")}
+              className="flex items-center gap-1.5 bg-white/60 hover:bg-white backdrop-blur border border-white/60 px-3 py-2 rounded-xl shadow-sm hover:shadow-md transition-all text-xs font-bold text-slate-700 uppercase"
+              title="Toggle Language"
             >
-              Book Service
+              <Globe className="w-4 h-4 text-pink-500" />
+              {lang === "en" ? "VI" : "EN"}
             </button>
-            <button
-              onClick={() => setActiveTab("manage")}
-              className={`px-5 py-2 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${
-                activeTab === "manage"
-                  ? "bg-white text-pink-600 shadow-md transform scale-105"
-                  : "text-slate-500 hover:text-slate-800 hover:bg-white/50"
-              }`}
-            >
-              <span>Appointments</span>
-              {savedBookings.length > 0 && (
-                <span className="bg-gradient-to-r from-pink-400 to-orange-400 text-white text-[11px] font-black px-2 py-0.5 rounded-full shadow-sm animate-pulse-slow">
-                  {savedBookings.length}
-                </span>
-              )}
-            </button>
+            <div className="hidden md:flex items-center bg-white/40 backdrop-blur-md p-1.5 rounded-2xl border border-white/50 shadow-inner">
+              <button
+                onClick={() => setActiveTab("book")}
+                className={`px-5 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
+                  activeTab === "book"
+                    ? "bg-white text-pink-600 shadow-md transform scale-105"
+                    : "text-slate-500 hover:text-slate-800 hover:bg-white/50"
+                }`}
+              >
+                {t.bookService}
+              </button>
+              <button
+                onClick={() => setActiveTab("manage")}
+                className={`px-5 py-2 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${
+                  activeTab === "manage"
+                    ? "bg-white text-pink-600 shadow-md transform scale-105"
+                    : "text-slate-500 hover:text-slate-800 hover:bg-white/50"
+                }`}
+              >
+                <span>{t.appointments}</span>
+                {savedBookings.length > 0 && (
+                  <span className="bg-gradient-to-r from-pink-400 to-orange-400 text-white text-[11px] font-black px-2 py-0.5 rounded-full shadow-sm animate-pulse-slow">
+                    {savedBookings.length}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Main Content Container */}
-      <div className="max-w-4xl mx-auto px-4 pt-8">
+      <div className="max-w-4xl mx-auto px-4 pt-4">
         {/* TAB 1: BOOKING EXPERIENCE */}
         {activeTab === "book" && (
           <div>
@@ -204,18 +356,18 @@ export default function Home() {
             {step < 4 && (
               <div className="text-center mb-10 animate-fade-up">
                 <h1 className="text-4xl sm:text-5xl font-black text-slate-800 tracking-tight drop-shadow-sm mb-4">
-                  Pamper Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400 animate-pulse-slow">Furry Best Friend</span>
+                  {t.title} <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400 animate-pulse-slow">{t.titleHighlight}</span>
                 </h1>
                 <p className="text-slate-600 text-sm sm:text-lg max-w-xl mx-auto font-medium">
-                  Certified groomers, 100% organic shampoos, and stress-free spa treatments.
+                  {t.subtitle}
                 </p>
 
                 {/* Progress Indicators */}
                 <div className="flex items-center justify-center gap-2 sm:gap-4 mt-8">
                   {[
-                    { num: 1, label: "Select Service" },
-                    { num: 2, label: "Date & Time" },
-                    { num: 3, label: "Pet Details" },
+                    { num: 1, label: t.step1 },
+                    { num: 2, label: t.step2 },
+                    { num: 3, label: t.step3 },
                   ].map((s) => (
                     <div key={s.num} className="flex items-center gap-2">
                       <div
@@ -248,7 +400,7 @@ export default function Home() {
               <section className="glass-panel rounded-3xl p-6 sm:p-10 animate-fade-up relative z-10">
                 <div className="mb-8">
                   <label className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-3">
-                    1. Who is getting pampered?
+                    {t.choosePet}
                   </label>
                   <div className="grid grid-cols-2 gap-4 max-w-md">
                     <button
@@ -261,7 +413,7 @@ export default function Home() {
                       }`}
                     >
                       <Dog className={`w-6 h-6 transition-colors ${petType === "dog" ? "text-pink-500" : "text-slate-400"}`} />
-                      <span>Dog</span>
+                      <span>{t.dog}</span>
                     </button>
                     <button
                       type="button"
@@ -273,14 +425,14 @@ export default function Home() {
                       }`}
                     >
                       <Cat className={`w-6 h-6 transition-colors ${petType === "cat" ? "text-pink-500" : "text-slate-400"}`} />
-                      <span>Cat</span>
+                      <span>{t.cat}</span>
                     </button>
                   </div>
                 </div>
 
                 <div className="mb-8">
                   <label className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-4">
-                    2. Select Spa Service
+                    {t.selectService}
                   </label>
                   <div className="grid sm:grid-cols-2 gap-5">
                     {SPA_SERVICES.map((srv) => {
@@ -297,7 +449,7 @@ export default function Home() {
                         >
                           {srv.popular && (
                             <span className="absolute -top-3 right-5 bg-gradient-to-r from-pink-500 to-orange-400 text-white text-[10px] font-black px-3 py-1 rounded-full tracking-wider shadow-sm animate-pulse-slow">
-                              POPULAR
+                              {t.popular}
                             </span>
                           )}
                           <div>
@@ -306,14 +458,14 @@ export default function Home() {
                                 {renderServiceIcon(srv.iconName)}
                               </div>
                               <div>
-                                <h3 className="font-extrabold text-slate-800 text-lg">{srv.name}</h3>
+                                <h3 className="font-extrabold text-slate-800 text-lg">{translateService(srv.id, lang)}</h3>
                                 <span className="text-xs text-slate-400 flex items-center gap-1 font-semibold mt-0.5">
                                   <Clock3 className="w-3.5 h-3.5" /> {srv.duration}
                                 </span>
                               </div>
                             </div>
                             <p className="text-sm text-slate-500 mt-2 leading-relaxed font-medium">
-                              {srv.description}
+                              {translateDesc(srv.id, lang)}
                             </p>
                           </div>
                           <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
@@ -323,7 +475,7 @@ export default function Home() {
                             <div
                               className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
                                 isSelected
-                                  ? "border-pink-500 bg-pink-500 text-white scale-110"
+                                  ? "border-pink-500 bg-gradient-to-r from-pink-500 to-orange-400 text-white scale-110"
                                   : "border-slate-300 bg-transparent"
                               }`}
                             >
@@ -340,9 +492,9 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+                    className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-pink-500/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
                   >
-                    <span>Choose Date & Time</span>
+                    <span>{t.chooseDateTime}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -351,36 +503,36 @@ export default function Home() {
 
             {/* STEP 2: DATE & TIME */}
             {step === 2 && (
-              <section className="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 sm:p-8 animate-fadeIn">
-                <h2 className="text-lg font-bold text-stone-900 mb-1">Pick Date & Time</h2>
-                <p className="text-xs text-stone-500 mb-6">
-                  Select your preferred grooming slot for {selectedService.name}.
+              <section className="glass-panel rounded-3xl p-6 sm:p-10 animate-fade-up relative z-10">
+                <h2 className="text-xl font-extrabold text-slate-800 mb-2">{t.pickDateTime}</h2>
+                <p className="text-sm text-slate-500 font-medium mb-8">
+                  {t.selectSlotFor} <span className="text-pink-500 font-bold">{translateService(selectedService.id, lang)}</span>.
                 </p>
 
-                <div className="grid sm:grid-cols-2 gap-6 mb-8">
+                <div className="grid sm:grid-cols-2 gap-8 mb-10">
                   {/* Date Input */}
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-stone-500 block mb-2">
-                      Appointment Date
+                    <label className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-3">
+                      {t.apptDate}
                     </label>
                     <div className="relative">
-                      <Calendar className="w-5 h-5 text-stone-400 absolute left-3.5 top-3 pointer-events-none" />
+                      <Calendar className="w-5 h-5 text-slate-400 absolute left-4 top-3.5 pointer-events-none" />
                       <input
                         type="date"
                         value={bookingDate}
                         min={new Date().toISOString().split("T")[0]}
                         onChange={(e) => setBookingDate(e.target.value)}
-                        className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-stone-800"
+                        className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-bold text-slate-700 transition-all shadow-sm hover:shadow-md"
                       />
                     </div>
                   </div>
 
                   {/* Time Slots */}
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-stone-500 block mb-2">
-                      Available Time Slot
+                    <label className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-3">
+                      {t.availSlot}
                     </label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-3">
                       {AVAILABLE_TIME_SLOTS.map((slot) => {
                         const isSelected = bookingTime === slot;
                         return (
@@ -388,13 +540,13 @@ export default function Home() {
                             key={slot}
                             type="button"
                             onClick={() => setBookingTime(slot)}
-                            className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border text-xs font-medium transition-all ${
+                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-2xl border-2 text-sm font-bold transition-all duration-300 ${
                               isSelected
-                                ? "border-amber-500 bg-amber-50 text-amber-900 font-bold ring-1 ring-amber-500"
-                                : "border-stone-200 hover:border-stone-300 text-stone-700"
+                                ? "border-pink-400 bg-pink-50 text-pink-700 shadow-md shadow-pink-100 transform scale-105"
+                                : "border-white/60 bg-white/40 hover:bg-white hover:border-pink-200 text-slate-500 hover:shadow-sm"
                             }`}
                           >
-                            <Clock className="w-3.5 h-3.5" />
+                            <Clock className="w-4 h-4" />
                             <span>{slot}</span>
                           </button>
                         );
@@ -403,22 +555,22 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-stone-100">
+                <div className="flex items-center justify-between pt-6 border-t border-slate-200/60">
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="flex items-center gap-1.5 text-stone-600 hover:text-stone-900 font-medium text-sm px-4 py-2 rounded-lg cursor-pointer"
+                    className="flex items-center gap-2 text-slate-500 hover:text-slate-800 font-bold px-4 py-2 rounded-full hover:bg-white/50 transition-colors"
                   >
                     <ArrowLeft className="w-4 h-4" />
-                    <span>Back</span>
+                    <span>{t.back}</span>
                   </button>
                   <button
                     type="button"
                     disabled={!bookingDate || !bookingTime}
                     onClick={() => setStep(3)}
-                    className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white px-6 py-3 rounded-xl font-semibold shadow-md transition-all cursor-pointer"
+                    className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 disabled:opacity-50 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-pink-500/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
                   >
-                    <span>Owner & Pet Details</span>
+                    <span>{t.ownerPetDetails}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -429,82 +581,82 @@ export default function Home() {
             {step === 3 && (
               <form
                 onSubmit={handleSubmitBooking}
-                className="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 sm:p-8 animate-fadeIn"
+                className="glass-panel rounded-3xl p-6 sm:p-10 animate-fade-up relative z-10"
               >
-                <h2 className="text-lg font-bold text-stone-900 mb-1">Owner & Pet Details</h2>
-                <p className="text-xs text-stone-500 mb-6">
-                  Almost done! Tell us who we will be pampering.
+                <h2 className="text-xl font-extrabold text-slate-800 mb-2">{t.ownerPetDetails}</h2>
+                <p className="text-sm text-slate-500 font-medium mb-8">
+                  {t.almostDone}
                 </p>
 
                 {/* Pet Information */}
-                <div className="mb-6">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md inline-block mb-3">
-                    Pet Information
+                <div className="mb-8">
+                  <h3 className="text-xs font-black uppercase tracking-widest text-pink-700 bg-pink-100/80 px-3 py-1.5 rounded-lg inline-block mb-4 shadow-sm border border-pink-200">
+                    {t.petInfo}
                   </h3>
-                  <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="grid sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="text-xs font-semibold text-stone-600 block mb-1">
-                        Pet Name *
+                      <label className="text-xs font-bold text-slate-500 block mb-2">
+                        {t.petName}
                       </label>
                       <input
                         type="text"
                         required
-                        placeholder="e.g. Milo, Luna"
+                        placeholder={t.petNamePh}
                         value={petName}
                         onChange={(e) => setPetName(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
+                        className="w-full px-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400 shadow-sm"
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-semibold text-stone-600 block mb-1">
-                        Breed / Coat Type
+                      <label className="text-xs font-bold text-slate-500 block mb-2">
+                        {t.breed}
                       </label>
                       <input
                         type="text"
-                        placeholder="e.g. Poodle, British Shorthair"
+                        placeholder={t.breedPh}
                         value={petBreed}
                         onChange={(e) => setPetBreed(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
+                        className="w-full px-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400 shadow-sm"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Owner Information */}
-                <div className="mb-6">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md inline-block mb-3">
-                    Contact Information
+                <div className="mb-8">
+                  <h3 className="text-xs font-black uppercase tracking-widest text-pink-700 bg-pink-100/80 px-3 py-1.5 rounded-lg inline-block mb-4 shadow-sm border border-pink-200">
+                    {t.contactInfo}
                   </h3>
-                  <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="grid sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="text-xs font-semibold text-stone-600 block mb-1">
-                        Your Full Name *
+                      <label className="text-xs font-bold text-slate-500 block mb-2">
+                        {t.fullName}
                       </label>
                       <div className="relative">
-                        <User className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                        <User className="w-5 h-5 text-slate-400 absolute left-4 top-3.5" />
                         <input
                           type="text"
                           required
-                          placeholder="Your name"
+                          placeholder={t.fullNamePh}
                           value={ownerName}
                           onChange={(e) => setOwnerName(e.target.value)}
-                          className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
+                          className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400 shadow-sm"
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="text-xs font-semibold text-stone-600 block mb-1">
-                        Phone Number *
+                      <label className="text-xs font-bold text-slate-500 block mb-2">
+                        {t.phone}
                       </label>
                       <div className="relative">
-                        <Phone className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                        <Phone className="w-5 h-5 text-slate-400 absolute left-4 top-3.5" />
                         <input
                           type="tel"
                           required
-                          placeholder="e.g. 0912 345 678"
+                          placeholder={t.phonePh}
                           value={ownerPhone}
                           onChange={(e) => setOwnerPhone(e.target.value)}
-                          className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
+                          className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400 shadow-sm"
                         />
                       </div>
                     </div>
@@ -512,47 +664,47 @@ export default function Home() {
                 </div>
 
                 {/* Special Notes */}
-                <div className="mb-6">
-                  <label className="text-xs font-semibold text-stone-600 block mb-1">
-                    Special Instructions / Pet Temperament
+                <div className="mb-8">
+                  <label className="text-xs font-bold text-slate-500 block mb-2">
+                    {t.notes}
                   </label>
                   <textarea
                     rows={2}
-                    placeholder="e.g. Nervous around loud hair dryers, sensitive skin..."
+                    placeholder={t.notesPh}
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
+                    className="w-full px-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-medium text-slate-700 transition-all placeholder:text-slate-400 shadow-sm"
                   />
                 </div>
 
                 {/* Summary Box */}
-                <div className="bg-stone-50 rounded-xl p-4 border border-stone-200 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className="bg-white/80 rounded-2xl p-5 border-2 border-slate-100 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
                   <div>
-                    <span className="font-bold text-stone-800">{selectedService.name}</span>
-                    <span className="text-stone-500 block sm:inline sm:ml-2">
+                    <span className="font-extrabold text-slate-800 text-lg">{translateService(selectedService.id, lang)}</span>
+                    <span className="text-slate-500 block sm:inline sm:ml-2 font-medium">
                       ({bookingDate} at {bookingTime})
                     </span>
                   </div>
-                  <div className="font-extrabold text-base text-amber-600">
-                    Total: ${selectedService.price}
+                  <div className="font-black text-xl text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400">
+                    {t.total} ${selectedService.price}
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-stone-100">
+                <div className="flex items-center justify-between pt-6 border-t border-slate-200/60">
                   <button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="flex items-center gap-1.5 text-stone-600 hover:text-stone-900 font-medium text-sm px-4 py-2 rounded-lg cursor-pointer"
+                    className="flex items-center gap-2 text-slate-500 hover:text-slate-800 font-bold px-4 py-2 rounded-full hover:bg-white/50 transition-colors"
                   >
                     <ArrowLeft className="w-4 h-4" />
-                    <span>Back</span>
+                    <span>{t.back}</span>
                   </button>
                   <button
                     type="submit"
-                    className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-7 py-3 rounded-xl font-bold shadow-md transition-all cursor-pointer"
+                    className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-pink-500/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
                   >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Confirm Booking</span>
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span>{t.confirm}</span>
                   </button>
                 </div>
               </form>
@@ -560,55 +712,56 @@ export default function Home() {
 
             {/* STEP 4: SUCCESS RECEIPT */}
             {step === 4 && lastBooking && (
-              <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-6 sm:p-10 text-center max-w-lg mx-auto animate-fadeIn">
-                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 className="w-9 h-9" />
+              <div className="glass-panel rounded-3xl shadow-xl border border-white p-8 sm:p-12 text-center max-w-xl mx-auto animate-fade-up relative z-10">
+                <div className="w-20 h-20 bg-gradient-to-tr from-green-400 to-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-500/30 animate-pulse-slow">
+                  <CheckCircle2 className="w-10 h-10" />
                 </div>
-                <h2 className="text-2xl font-black text-stone-900">Booking Confirmed!</h2>
-                <p className="text-xs text-stone-500 mt-1 mb-6">
-                  We look forward to seeing {lastBooking.petName} soon!
+                <h2 className="text-3xl font-black text-slate-800">{t.confirmed}</h2>
+                <p className="text-base text-slate-500 mt-2 mb-8 font-medium">
+                  {t.lookForward} <span className="font-bold text-pink-500">{lastBooking.petName}</span> {t.soon}
                 </p>
 
                 {/* Receipt Card */}
-                <div className="bg-amber-50/60 rounded-xl p-5 border border-amber-200 text-left mb-6 space-y-2.5 text-xs text-stone-700">
-                  <div className="flex justify-between border-b border-amber-200/60 pb-2">
-                    <span className="font-medium text-stone-500">Booking ID:</span>
-                    <span className="font-mono font-bold text-stone-900">{lastBooking.id}</span>
+                <div className="bg-white/80 rounded-2xl p-6 border-2 border-pink-100 text-left mb-8 space-y-3.5 text-sm text-slate-700 shadow-sm relative overflow-hidden">
+                  <div className="absolute -right-4 -top-4 text-6xl opacity-5 pointer-events-none">🐾</div>
+                  <div className="flex justify-between border-b border-pink-100 pb-3">
+                    <span className="font-bold text-slate-500 uppercase tracking-wider text-xs">{t.bookingId}</span>
+                    <span className="font-mono font-black text-slate-800 bg-slate-100 px-2 py-0.5 rounded">{lastBooking.id}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium text-stone-500">Pet Name:</span>
-                    <span className="font-semibold">{lastBooking.petName} ({lastBooking.petType})</span>
+                    <span className="font-bold text-slate-500 uppercase tracking-wider text-xs">Thú Cưng:</span>
+                    <span className="font-bold text-slate-800">{lastBooking.petName} <span className="text-slate-400 font-medium">({lastBooking.petType})</span></span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium text-stone-500">Service:</span>
-                    <span className="font-semibold">{lastBooking.serviceName}</span>
+                    <span className="font-bold text-slate-500 uppercase tracking-wider text-xs">{t.service}</span>
+                    <span className="font-bold text-slate-800">{translateService(lastBooking.serviceId, lang)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium text-stone-500">Date & Slot:</span>
-                    <span className="font-semibold">{lastBooking.date} • {lastBooking.timeSlot}</span>
+                    <span className="font-bold text-slate-500 uppercase tracking-wider text-xs">{t.dateSlot}</span>
+                    <span className="font-bold text-slate-800">{lastBooking.date} • {lastBooking.timeSlot}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="font-medium text-stone-500">Customer:</span>
-                    <span className="font-semibold">{lastBooking.ownerName} ({lastBooking.ownerPhone})</span>
+                    <span className="font-bold text-slate-500 uppercase tracking-wider text-xs">{t.customer}</span>
+                    <span className="font-bold text-slate-800">{lastBooking.ownerName}</span>
                   </div>
-                  <div className="flex justify-between border-t border-amber-200/60 pt-2 text-sm font-bold text-stone-900">
-                    <span>Estimated Total:</span>
-                    <span className="text-amber-600">${lastBooking.servicePrice}</span>
+                  <div className="flex justify-between border-t border-pink-100 pt-3 mt-2 font-black text-base text-slate-800">
+                    <span>{t.estTotal}</span>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400">${lastBooking.servicePrice}</span>
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={handleReset}
-                    className="flex-1 py-3 px-4 rounded-xl border border-stone-300 hover:bg-stone-50 font-semibold text-xs text-stone-700 cursor-pointer"
+                    className="flex-1 py-4 px-6 rounded-full border-2 border-white/60 bg-white/40 hover:bg-white font-bold text-sm text-slate-700 transition-all shadow-sm"
                   >
-                    Book Another Pet
+                    {t.bookAnother}
                   </button>
                   <button
                     onClick={() => setActiveTab("manage")}
-                    className="flex-1 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 font-semibold text-xs text-white shadow-md cursor-pointer"
+                    className="flex-1 py-4 px-6 rounded-full bg-slate-800 hover:bg-slate-900 font-bold text-sm text-white shadow-lg transition-all"
                   >
-                    View All Appointments
+                    {t.viewAll}
                   </button>
                 </div>
               </div>
@@ -618,12 +771,12 @@ export default function Home() {
 
         {/* TAB 2: APPOINTMENT MANAGEMENT */}
         {activeTab === "manage" && (
-          <section className="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 sm:p-8 animate-fadeIn">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-stone-100 pb-4">
+          <section className="glass-panel rounded-3xl shadow-sm border border-white p-6 sm:p-10 animate-fade-up relative z-10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-slate-200/60 pb-6">
               <div>
-                <h2 className="text-xl font-bold text-stone-900">Manage Appointments</h2>
-                <p className="text-xs text-stone-500 mt-0.5">
-                  View and manage current spa booking records (stored in local browser).
+                <h2 className="text-2xl font-black text-slate-800">{t.manageAppt}</h2>
+                <p className="text-sm text-slate-500 mt-1 font-medium">
+                  {t.manageDesc}
                 </p>
               </div>
               <button
@@ -631,69 +784,70 @@ export default function Home() {
                   setActiveTab("book");
                   setStep(1);
                 }}
-                className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow-sm cursor-pointer self-start sm:self-auto"
+                className="bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white text-sm font-bold px-6 py-3 rounded-full shadow-lg shadow-pink-500/20 hover:shadow-xl hover:-translate-y-0.5 transition-all self-start sm:self-auto"
               >
-                + New Booking
+                {t.newBooking}
               </button>
             </div>
 
             {savedBookings.length === 0 ? (
-              <div className="text-center py-12 text-stone-400">
-                <CalendarDays className="w-12 h-12 mx-auto stroke-1 mb-2 text-stone-300" />
-                <p className="font-medium text-sm text-stone-600">No appointments booked yet.</p>
-                <p className="text-xs text-stone-400 mt-1">Book your first pet spa session now!</p>
+              <div className="text-center py-16 bg-white/40 rounded-2xl border-2 border-dashed border-slate-200">
+                <CalendarDays className="w-16 h-16 mx-auto stroke-1 mb-4 text-pink-300" />
+                <p className="font-bold text-lg text-slate-600 mb-1">{t.noAppt}</p>
+                <p className="text-sm text-slate-400 font-medium">{t.bookFirst}</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {savedBookings.map((b) => (
                   <div
                     key={b.id}
-                    className="border border-stone-200 rounded-xl p-4 hover:shadow-sm transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+                    className="bg-white/70 border-2 border-white rounded-2xl p-5 hover:shadow-md hover:bg-white transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-5"
                   >
-                    <div className="flex items-start gap-3.5">
-                      <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-base shrink-0 mt-0.5">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-100 to-orange-50 text-pink-500 border border-pink-100 flex items-center justify-center font-bold text-xl shrink-0 shadow-sm">
                         {b.petType === "dog" ? "🐶" : "🐱"}
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-stone-900">{b.petName}</span>
-                          <span className="text-[10px] bg-stone-100 text-stone-600 px-2 py-0.5 rounded-full font-medium">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-extrabold text-slate-800 text-lg">{b.petName}</span>
+                          <span className="text-[10px] bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full font-bold tracking-wide uppercase">
                             {b.petBreed}
                           </span>
-                          <span className="text-[10px] font-mono text-stone-400">({b.id})</span>
+                          <span className="text-[10px] font-mono text-slate-400 bg-white border border-slate-100 px-2 py-0.5 rounded">ID: {b.id}</span>
                         </div>
-                        <div className="text-xs text-stone-600 font-medium mt-1">
-                          {b.serviceName} • <span className="text-amber-600 font-bold">${b.servicePrice}</span>
+                        <div className="text-sm text-slate-600 font-bold mb-2">
+                          {translateService(b.serviceId, lang)} • <span className="text-pink-500">${b.servicePrice}</span>
                         </div>
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-500 mt-1.5">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5 text-stone-400" /> {b.date}
+                        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500 font-medium">
+                          <span className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-md border border-slate-100">
+                            <Calendar className="w-4 h-4 text-pink-400" /> {b.date}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-stone-400" /> {b.timeSlot}
+                          <span className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-md border border-slate-100">
+                            <Clock className="w-4 h-4 text-pink-400" /> {b.timeSlot}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <User className="w-3.5 h-3.5 text-stone-400" /> {b.ownerName} ({b.ownerPhone})
+                          <span className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-md border border-slate-100">
+                            <User className="w-4 h-4 text-pink-400" /> {b.ownerName} <span className="text-slate-400">({b.ownerPhone})</span>
                           </span>
                         </div>
                         {b.notes && (
-                          <p className="text-[11px] text-stone-500 italic mt-1.5 bg-stone-50 p-1.5 rounded border border-stone-100">
-                            Note: {b.notes}
+                          <p className="text-[11px] text-slate-500 font-medium mt-3 bg-pink-50/50 p-2.5 rounded-lg border border-pink-100/50">
+                            <strong className="text-pink-600">{t.note}</strong> {b.notes}
                           </p>
                         )}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 self-end md:self-center">
-                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                        Confirmed
+                    <div className="flex items-center gap-3 self-end md:self-center">
+                      <span className="text-xs font-bold text-green-700 bg-green-50 px-3 py-1.5 rounded-full border border-green-200 shadow-sm flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                        {t.confirmedTag}
                       </span>
                       <button
                         onClick={() => handleDeleteBooking(b.id)}
                         title="Cancel Appointment"
-                        className="p-2 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                        className="p-2.5 text-slate-400 hover:text-white hover:bg-red-500 rounded-xl transition-all duration-300 shadow-sm"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-5 h-5" />
                       </button>
                     </div>
                   </div>
@@ -705,17 +859,17 @@ export default function Home() {
       </div>
 
       {/* Spa Footer */}
-      <footer className="mt-16 text-center text-xs text-stone-400 border-t border-stone-200/60 pt-6">
-        <div className="flex items-center justify-center gap-4 mb-2">
-          <span className="flex items-center gap-1">
-            <MapPin className="w-3.5 h-3.5" /> 123 Pet Haven Ave, District 1
+      <footer className="mt-20 text-center text-xs text-slate-400 border-t border-slate-200/50 pt-8 pb-4 relative z-10">
+        <div className="flex items-center justify-center gap-5 mb-3 font-medium">
+          <span className="flex items-center gap-1.5">
+            <MapPin className="w-4 h-4 text-pink-400" /> 123 Pet Haven Ave, District 1
           </span>
-          <span>•</span>
-          <span className="flex items-center gap-1">
-            <Clock3 className="w-3.5 h-3.5" /> Open Daily: 8:00 AM – 7:00 PM
+          <span className="text-slate-300">•</span>
+          <span className="flex items-center gap-1.5">
+            <Clock3 className="w-4 h-4 text-pink-400" /> Open Daily: 8:00 AM – 7:00 PM
           </span>
         </div>
-        <p>© {new Date().getFullYear()} PurrfectClinic Pet Spa. Built with Next.js & Tailwind CSS.</p>
+        <p className="font-semibold text-slate-400">© {new Date().getFullYear()} PurrfectClinic. Built with Next.js & Tailwind CSS.</p>
       </footer>
     </main>
   );
