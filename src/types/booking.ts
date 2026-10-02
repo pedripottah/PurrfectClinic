@@ -23,8 +23,8 @@ export interface Booking {
   petBreed: string;
   ownerName: string;
   ownerPhone: string;
-  ownerEmail?: string;
+  ownerEmail: string;
   notes?: string;
-  status: 'pending' | 'confirmed' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'rejected' | 'cancelled';
   createdAt: string;
 }

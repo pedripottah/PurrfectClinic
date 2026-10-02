@@ -2,24 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Scissors,
-  Bath,
-  Sparkles,
-  Heart,
-  Calendar,
-  Clock,
-  User,
-  Phone,
-  CheckCircle2,
-  CalendarDays,
-  Dog,
-  Cat,
-  ArrowRight,
-  ArrowLeft,
-  Trash2,
-  MapPin,
-  Clock3,
-  Globe,
+  Scissors, Bath, Sparkles, Heart, Calendar, Clock, User, Phone, CheckCircle2,
+  CalendarDays, Dog, Cat, ArrowRight, ArrowLeft, Trash2, MapPin, Clock3, Globe, Mail, XCircle
 } from "lucide-react";
 import { SPA_SERVICES, AVAILABLE_TIME_SLOTS } from "../data/services";
 import { SpaService, PetType, Booking } from "../types/booking";
@@ -46,6 +30,7 @@ const DICT = {
     selectSlotFor: "Select your preferred grooming slot for",
     apptDate: "Appointment Date",
     availSlot: "Available Time Slot",
+    noSlots: "Today is unavailable or fully booked. Please select another day.",
     back: "Back",
     ownerPetDetails: "Owner & Pet Details",
     almostDone: "Almost done! Tell us who we will be caring for.",
@@ -59,13 +44,15 @@ const DICT = {
     fullNamePh: "Your name",
     phone: "Phone Number *",
     phonePh: "e.g. 0912 345 678",
+    email: "Email Address *",
+    emailPh: "e.g. you@example.com",
     notes: "Special Instructions / Pet Temperament",
     notesPh: "e.g. Nervous around loud hair dryers, sensitive skin...",
     total: "Total:",
     confirm: "Confirm Booking",
-    confirmed: "Booking Confirmed!",
-    lookForward: "We look forward to seeing",
-    soon: "soon!",
+    confirmed: "Booking Pending!",
+    lookForward: "We received your request for",
+    soon: "We will review it shortly.",
     bookingId: "Booking ID:",
     service: "Service:",
     dateSlot: "Date & Slot:",
@@ -74,12 +61,13 @@ const DICT = {
     bookAnother: "Book Another Pet",
     viewAll: "View All Appointments",
     manageAppt: "Manage Appointments",
-    manageDesc: "View and manage current spa booking records (stored in local browser).",
+    manageDesc: "View and manage current spa booking records.",
     newBooking: "+ New Booking",
     noAppt: "No appointments booked yet.",
     bookFirst: "Book your first pet spa session now!",
     confirmedTag: "Confirmed",
     pendingTag: "Pending",
+    rejectedTag: "Rejected",
     note: "Note:"
   },
   vi: {
@@ -102,6 +90,7 @@ const DICT = {
     selectSlotFor: "Chọn khung giờ lý tưởng cho",
     apptDate: "Ngày Hẹn",
     availSlot: "Khung Giờ Trống",
+    noSlots: "Hôm nay đã kín lịch hoặc không phục vụ. Vui lòng chọn ngày khác.",
     back: "Quay lại",
     ownerPetDetails: "Thông Tin Liên Hệ",
     almostDone: "Sắp xong rồi! Hãy cho chúng tôi biết thông tin nhé.",
@@ -115,13 +104,15 @@ const DICT = {
     fullNamePh: "Tên của bạn",
     phone: "Số Điện Thoại *",
     phonePh: "vd: 0912 345 678",
+    email: "Địa chỉ Email *",
+    emailPh: "vd: ban@example.com",
     notes: "Ghi chú đặc biệt / Tính cách thú cưng",
     notesPh: "vd: Hay sợ tiếng máy sấy, da nhạy cảm...",
     total: "Tổng cộng:",
     confirm: "Xác Nhận Đặt Lịch",
-    confirmed: "Đã Xác Nhận Lịch Hẹn!",
-    lookForward: "Chúng tôi rất mong được đón tiếp",
-    soon: "sớm!",
+    confirmed: "Đã Gửi Yêu Cầu!",
+    lookForward: "Chúng tôi đã nhận được yêu cầu cho",
+    soon: "Chúng tôi sẽ sớm duyệt lịch.",
     bookingId: "Mã Đặt Lịch:",
     service: "Dịch Vụ:",
     dateSlot: "Ngày & Giờ:",
@@ -130,17 +121,17 @@ const DICT = {
     bookAnother: "Đặt Lịch Khác",
     viewAll: "Xem Tất Cả Lịch Hẹn",
     manageAppt: "Quản Lý Lịch Hẹn",
-    manageDesc: "Xem và quản lý hồ sơ lịch hẹn spa (lưu trên trình duyệt cục bộ).",
+    manageDesc: "Xem và quản lý hồ sơ lịch hẹn spa.",
     newBooking: "+ Đặt Lịch Mới",
     noAppt: "Chưa có lịch hẹn nào.",
     bookFirst: "Hãy đặt lịch spa đầu tiên cho thú cưng ngay!",
     confirmedTag: "Đã xác nhận",
     pendingTag: "Chờ xác nhận",
+    rejectedTag: "Đã từ chối",
     note: "Ghi chú:"
   }
 };
 
-// Map services for translation
 const translateService = (id: string, lang: "en" | "vi") => {
   if (lang === "en") return SPA_SERVICES.find(s => s.id === id)?.name;
   const viMap: Record<string, string> = {
@@ -164,17 +155,12 @@ const translateDesc = (id: string, lang: "en" | "vi") => {
 };
 
 export default function Home() {
-  // Language State
   const [lang, setLang] = useState<"en" | "vi">("en");
   const t = DICT[lang];
 
-  // Navigation tab: 'book' or 'manage'
   const [activeTab, setActiveTab] = useState<"book" | "manage">("book");
-
-  // Step in the booking wizard (1: Service, 2: Date & Time, 3: Pet & Owner Info, 4: Success)
   const [step, setStep] = useState<number>(1);
 
-  // Booking Form State
   const [petType, setPetType] = useState<PetType>("dog");
   const [selectedService, setSelectedService] = useState<SpaService>(SPA_SERVICES[0]);
   const [bookingDate, setBookingDate] = useState<string>("");
@@ -184,47 +170,50 @@ export default function Home() {
   const [petBreed, setPetBreed] = useState<string>("");
   const [ownerName, setOwnerName] = useState<string>("");
   const [ownerPhone, setOwnerPhone] = useState<string>("");
+  const [ownerEmail, setOwnerEmail] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
 
-  // Last completed booking for the receipt screen
   const [lastBooking, setLastBooking] = useState<Booking | null>(null);
-
-  // Stored Bookings list (loaded from localStorage)
   const [savedBookings, setSavedBookings] = useState<Booking[]>([]);
+  const [customAvailability, setCustomAvailability] = useState<Record<string, string[]>>({});
 
-  // Load bookings from localStorage on mount
-  useEffect(() => {
+  const loadData = () => {
     try {
-      const stored = localStorage.getItem("purrfectclinic_bookings");
-      if (stored) {
-        setSavedBookings(JSON.parse(stored));
-      }
-    } catch {
-      console.error("Could not load bookings from local storage");
-    }
+      const storedBookings = localStorage.getItem("purrfectclinic_bookings");
+      if (storedBookings) setSavedBookings(JSON.parse(storedBookings));
 
-    // Set default date to tomorrow
+      const storedAvailability = localStorage.getItem("purrfectclinic_availability");
+      if (storedAvailability) setCustomAvailability(JSON.parse(storedAvailability));
+    } catch {
+      console.error("Could not load from local storage");
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+    window.addEventListener("storage", loadData); // Sync live when admin changes things
+    
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     setBookingDate(tomorrow.toISOString().split("T")[0]);
-    setBookingTime(AVAILABLE_TIME_SLOTS[0]);
+
+    return () => window.removeEventListener("storage", loadData);
   }, []);
 
-  // Save bookings to localStorage whenever updated
   const saveBookingsToStorage = (updated: Booking[]) => {
     setSavedBookings(updated);
     try {
       localStorage.setItem("purrfectclinic_bookings", JSON.stringify(updated));
+      // Dispatch storage event for same-window updates (if needed)
+      window.dispatchEvent(new Event('storage'));
     } catch {
       console.error("Could not save to local storage");
     }
   };
 
-  // Handle booking submission
   const handleSubmitBooking = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!petName.trim() || !ownerName.trim() || !ownerPhone.trim()) {
+    if (!petName.trim() || !ownerName.trim() || !ownerPhone.trim() || !ownerEmail.trim()) {
       alert("Please fill in required fields.");
       return;
     }
@@ -241,6 +230,7 @@ export default function Home() {
       petBreed: petBreed.trim() || (petType === "dog" ? "Golden Retriever" : "Domestic Shorthair"),
       ownerName: ownerName.trim(),
       ownerPhone: ownerPhone.trim(),
+      ownerEmail: ownerEmail.trim(),
       notes: notes.trim(),
       status: "pending",
       createdAt: new Date().toISOString(),
@@ -249,21 +239,21 @@ export default function Home() {
     const updated = [newBooking, ...savedBookings];
     saveBookingsToStorage(updated);
     setLastBooking(newBooking);
-    setStep(4); // Move to Success Receipt screen
+    setStep(4);
   };
 
-  // Reset form to start a new booking
   const handleReset = () => {
     setStep(1);
     setPetName("");
     setPetBreed("");
     setOwnerName("");
     setOwnerPhone("");
+    setOwnerEmail("");
     setNotes("");
+    setBookingTime("");
     setLastBooking(null);
   };
 
-  // Delete a booking from manage view
   const handleDeleteBooking = (id: string) => {
     if (confirm("Are you sure you want to cancel this booking?")) {
       const updated = savedBookings.filter((b) => b.id !== id);
@@ -271,29 +261,35 @@ export default function Home() {
     }
   };
 
-  // Helper icon renderer
+  // Determine Available Slots dynamically
+  const baseSlots = customAvailability[bookingDate] !== undefined 
+    ? customAvailability[bookingDate] 
+    : AVAILABLE_TIME_SLOTS;
+
+  const bookedSlots = savedBookings
+    .filter(b => b.date === bookingDate && (b.status === 'pending' || b.status === 'confirmed'))
+    .map(b => b.timeSlot);
+    
+  const availableSlotsForDate = baseSlots.filter(s => !bookedSlots.includes(s));
+
   const renderServiceIcon = (iconName: string) => {
     switch (iconName) {
-      case "bath":
-        return <Bath className="w-6 h-6 text-sky-500" />;
-      case "scissors":
-        return <Scissors className="w-6 h-6 text-purple-500" />;
-      case "sparkles":
-        return <Sparkles className="w-6 h-6 text-pink-500" />;
-      default:
-        return <Heart className="w-6 h-6 text-rose-500" />;
+      case "bath": return <Bath className="w-6 h-6 text-sky-500" />;
+      case "scissors": return <Scissors className="w-6 h-6 text-purple-500" />;
+      case "sparkles": return <Sparkles className="w-6 h-6 text-pink-500" />;
+      default: return <Heart className="w-6 h-6 text-rose-500" />;
     }
   };
 
   return (
     <main className="min-h-screen text-slate-800 pb-16 relative overflow-hidden">
-      {/* Cute Floating Background Elements */}
+      {/* Background Elements */}
       <div className="absolute top-20 left-10 text-4xl animate-float opacity-40 pointer-events-none" style={{ animationDelay: '0s' }}>🐾</div>
       <div className="absolute top-40 right-20 text-4xl animate-float opacity-40 pointer-events-none" style={{ animationDelay: '1s' }}>✨</div>
       <div className="absolute bottom-40 left-32 text-3xl animate-float opacity-30 pointer-events-none" style={{ animationDelay: '2s' }}>🦴</div>
       <div className="absolute top-80 right-10 text-5xl animate-float opacity-20 pointer-events-none" style={{ animationDelay: '1.5s' }}>🐟</div>
       
-      {/* Top Navbar */}
+      {/* Header */}
       <header className="sticky top-0 z-30 glass-nav mb-8">
         <div className="max-w-5xl mx-auto px-4 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -307,89 +303,39 @@ export default function Home() {
               </span>
             </div>
           </div>
-
-          {/* Navigation Tabs & Language Toggle */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setLang(lang === "en" ? "vi" : "en")}
-              className="flex items-center gap-1.5 bg-white/60 hover:bg-white backdrop-blur border border-white/60 px-3 py-2 rounded-xl shadow-sm hover:shadow-md transition-all text-xs font-bold text-slate-700 uppercase"
-              title="Toggle Language"
-            >
-              <Globe className="w-4 h-4 text-pink-500" />
-              {lang === "en" ? "VI" : "EN"}
+            <button onClick={() => setLang(lang === "en" ? "vi" : "en")} className="flex items-center gap-1.5 bg-white/60 hover:bg-white backdrop-blur border border-white/60 px-3 py-2 rounded-xl shadow-sm transition-all text-xs font-bold text-slate-700 uppercase">
+              <Globe className="w-4 h-4 text-pink-500" /> {lang === "en" ? "VI" : "EN"}
             </button>
             <div className="hidden md:flex items-center bg-white/40 backdrop-blur-md p-1.5 rounded-2xl border border-white/50 shadow-inner">
-              <button
-                onClick={() => setActiveTab("book")}
-                className={`px-5 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
-                  activeTab === "book"
-                    ? "bg-white text-pink-600 shadow-md transform scale-105"
-                    : "text-slate-500 hover:text-slate-800 hover:bg-white/50"
-                }`}
-              >
+              <button onClick={() => setActiveTab("book")} className={`px-5 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === "book" ? "bg-white text-pink-600 shadow-md transform scale-105" : "text-slate-500 hover:text-slate-800 hover:bg-white/50"}`}>
                 {t.bookService}
               </button>
-              <button
-                onClick={() => setActiveTab("manage")}
-                className={`px-5 py-2 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${
-                  activeTab === "manage"
-                    ? "bg-white text-pink-600 shadow-md transform scale-105"
-                    : "text-slate-500 hover:text-slate-800 hover:bg-white/50"
-                }`}
-              >
+              <button onClick={() => setActiveTab("manage")} className={`px-5 py-2 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2 ${activeTab === "manage" ? "bg-white text-pink-600 shadow-md transform scale-105" : "text-slate-500 hover:text-slate-800 hover:bg-white/50"}`}>
                 <span>{t.appointments}</span>
-                {savedBookings.length > 0 && (
-                  <span className="bg-gradient-to-r from-pink-400 to-orange-400 text-white text-[11px] font-black px-2 py-0.5 rounded-full shadow-sm animate-pulse-slow">
-                    {savedBookings.length}
-                  </span>
-                )}
+                {savedBookings.length > 0 && <span className="bg-gradient-to-r from-pink-400 to-orange-400 text-white text-[11px] font-black px-2 py-0.5 rounded-full shadow-sm animate-pulse-slow">{savedBookings.length}</span>}
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content Container */}
       <div className="max-w-4xl mx-auto px-4 pt-4">
-        {/* TAB 1: BOOKING EXPERIENCE */}
         {activeTab === "book" && (
           <div>
-            {/* Header intro banner */}
             {step < 4 && (
               <div className="text-center mb-10 animate-fade-up">
                 <h1 className="text-4xl sm:text-5xl font-black text-slate-800 tracking-tight drop-shadow-sm mb-4">
                   {t.title} <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400 animate-pulse-slow">{t.titleHighlight}</span>
                 </h1>
-                <p className="text-slate-600 text-sm sm:text-lg max-w-xl mx-auto font-medium">
-                  {t.subtitle}
-                </p>
-
-                {/* Progress Indicators */}
+                <p className="text-slate-600 text-sm sm:text-lg max-w-xl mx-auto font-medium">{t.subtitle}</p>
                 <div className="flex items-center justify-center gap-2 sm:gap-4 mt-8">
-                  {[
-                    { num: 1, label: t.step1 },
-                    { num: 2, label: t.step2 },
-                    { num: 3, label: t.step3 },
-                  ].map((s) => (
+                  {[{ num: 1, label: t.step1 }, { num: 2, label: t.step2 }, { num: 3, label: t.step3 }].map((s) => (
                     <div key={s.num} className="flex items-center gap-2">
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500 ${
-                          step === s.num
-                            ? "bg-gradient-to-tr from-pink-500 to-orange-400 text-white shadow-lg shadow-pink-500/30 ring-4 ring-pink-100 transform scale-110"
-                            : step > s.num
-                            ? "bg-slate-800 text-white"
-                            : "bg-white text-slate-400 shadow-sm"
-                        }`}
-                      >
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500 ${step === s.num ? "bg-gradient-to-tr from-pink-500 to-orange-400 text-white shadow-lg shadow-pink-500/30 ring-4 ring-pink-100 transform scale-110" : step > s.num ? "bg-slate-800 text-white" : "bg-white text-slate-400 shadow-sm"}`}>
                         {step > s.num ? "✓" : s.num}
                       </div>
-                      <span
-                        className={`text-xs hidden sm:inline font-bold transition-colors duration-300 ${
-                          step >= s.num ? "text-slate-800" : "text-slate-400"
-                        }`}
-                      >
-                        {s.label}
-                      </span>
+                      <span className={`text-xs hidden sm:inline font-bold transition-colors duration-300 ${step >= s.num ? "text-slate-800" : "text-slate-400"}`}>{s.label}</span>
                       {s.num < 3 && <div className={`w-8 sm:w-12 h-1 rounded-full transition-colors duration-500 ${step > s.num ? "bg-slate-800" : "bg-white shadow-inner"}`} />}
                     </div>
                   ))}
@@ -397,35 +343,16 @@ export default function Home() {
               </div>
             )}
 
-            {/* STEP 1: SERVICE & PET TYPE */}
             {step === 1 && (
               <section className="glass-panel rounded-3xl p-6 sm:p-10 animate-fade-up relative z-10">
                 <div className="mb-8">
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-3">
-                    {t.choosePet}
-                  </label>
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-3">{t.choosePet}</label>
                   <div className="grid grid-cols-2 gap-4 max-w-md">
-                    <button
-                      type="button"
-                      onClick={() => setPetType("dog")}
-                      className={`flex items-center justify-center gap-3 p-4 rounded-2xl border-2 font-bold transition-all duration-300 ${
-                        petType === "dog"
-                          ? "border-pink-400 bg-white shadow-lg shadow-pink-100 transform scale-105 text-slate-800"
-                          : "border-white/60 bg-white/40 hover:bg-white hover:border-pink-200 text-slate-500 hover:shadow-md"
-                      }`}
-                    >
+                    <button type="button" onClick={() => setPetType("dog")} className={`flex items-center justify-center gap-3 p-4 rounded-2xl border-2 font-bold transition-all duration-300 ${petType === "dog" ? "border-pink-400 bg-white shadow-lg shadow-pink-100 transform scale-105 text-slate-800" : "border-white/60 bg-white/40 hover:bg-white hover:border-pink-200 text-slate-500"}`}>
                       <Dog className={`w-6 h-6 transition-colors ${petType === "dog" ? "text-pink-500" : "text-slate-400"}`} />
                       <span>{t.dog}</span>
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setPetType("cat")}
-                      className={`flex items-center justify-center gap-3 p-4 rounded-2xl border-2 font-bold transition-all duration-300 ${
-                        petType === "cat"
-                          ? "border-pink-400 bg-white shadow-lg shadow-pink-100 transform scale-105 text-slate-800"
-                          : "border-white/60 bg-white/40 hover:bg-white hover:border-pink-200 text-slate-500 hover:shadow-md"
-                      }`}
-                    >
+                    <button type="button" onClick={() => setPetType("cat")} className={`flex items-center justify-center gap-3 p-4 rounded-2xl border-2 font-bold transition-all duration-300 ${petType === "cat" ? "border-pink-400 bg-white shadow-lg shadow-pink-100 transform scale-105 text-slate-800" : "border-white/60 bg-white/40 hover:bg-white hover:border-pink-200 text-slate-500"}`}>
                       <Cat className={`w-6 h-6 transition-colors ${petType === "cat" ? "text-pink-500" : "text-slate-400"}`} />
                       <span>{t.cat}</span>
                     </button>
@@ -433,27 +360,13 @@ export default function Home() {
                 </div>
 
                 <div className="mb-8">
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-4">
-                    {t.selectService}
-                  </label>
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-4">{t.selectService}</label>
                   <div className="grid sm:grid-cols-2 gap-5">
                     {SPA_SERVICES.map((srv) => {
                       const isSelected = selectedService.id === srv.id;
                       return (
-                        <div
-                          key={srv.id}
-                          onClick={() => setSelectedService(srv)}
-                          className={`relative cursor-pointer rounded-3xl border-2 p-5 transition-all duration-300 flex flex-col justify-between ${
-                            isSelected
-                              ? "border-pink-400 bg-white shadow-xl shadow-pink-100 transform -translate-y-1"
-                              : "border-white/60 bg-white/50 hover:bg-white hover:border-pink-200 hover:shadow-lg hover:-translate-y-1"
-                          }`}
-                        >
-                          {srv.popular && (
-                            <span className="absolute -top-3 right-5 bg-gradient-to-r from-pink-500 to-orange-400 text-white text-[10px] font-black px-3 py-1 rounded-full tracking-wider shadow-sm animate-pulse-slow">
-                              {t.popular}
-                            </span>
-                          )}
+                        <div key={srv.id} onClick={() => setSelectedService(srv)} className={`relative cursor-pointer rounded-3xl border-2 p-5 transition-all duration-300 flex flex-col justify-between ${isSelected ? "border-pink-400 bg-white shadow-xl shadow-pink-100 transform -translate-y-1" : "border-white/60 bg-white/50 hover:bg-white hover:border-pink-200 hover:-translate-y-1"}`}>
+                          {srv.popular && <span className="absolute -top-3 right-5 bg-gradient-to-r from-pink-500 to-orange-400 text-white text-[10px] font-black px-3 py-1 rounded-full tracking-wider shadow-sm animate-pulse-slow">{t.popular}</span>}
                           <div>
                             <div className="flex items-center gap-3 mb-3">
                               <div className={`p-3 rounded-2xl transition-colors duration-300 ${isSelected ? "bg-pink-50" : "bg-white shadow-sm"}`}>
@@ -466,21 +379,11 @@ export default function Home() {
                                 </span>
                               </div>
                             </div>
-                            <p className="text-sm text-slate-500 mt-2 leading-relaxed font-medium">
-                              {translateDesc(srv.id, lang)}
-                            </p>
+                            <p className="text-sm text-slate-500 mt-2 font-medium">{translateDesc(srv.id, lang)}</p>
                           </div>
                           <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
-                            <span className="text-xl font-black text-slate-800">
-                              ${srv.price}
-                            </span>
-                            <div
-                              className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                                isSelected
-                                  ? "border-pink-500 bg-gradient-to-r from-pink-500 to-orange-400 text-white scale-110"
-                                  : "border-slate-300 bg-transparent"
-                              }`}
-                            >
+                            <span className="text-xl font-black text-slate-800">${srv.price}</span>
+                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isSelected ? "border-pink-500 bg-gradient-to-r from-pink-500 to-orange-400 text-white scale-110" : "border-slate-300 bg-transparent"}`}>
                               {isSelected && <span className="text-sm font-bold">✓</span>}
                             </div>
                           </div>
@@ -491,11 +394,7 @@ export default function Home() {
                 </div>
 
                 <div className="flex justify-end pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setStep(2)}
-                    className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-pink-500/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
-                  >
+                  <button type="button" onClick={() => setStep(2)} className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-pink-500/20 transition-all duration-300 hover:-translate-y-0.5">
                     <span>{t.chooseDateTime}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
@@ -503,7 +402,6 @@ export default function Home() {
               </section>
             )}
 
-            {/* STEP 2: DATE & TIME */}
             {step === 2 && (
               <section className="glass-panel rounded-3xl p-6 sm:p-10 animate-fade-up relative z-10">
                 <h2 className="text-xl font-extrabold text-slate-800 mb-2">{t.pickDateTime}</h2>
@@ -512,66 +410,57 @@ export default function Home() {
                 </p>
 
                 <div className="grid sm:grid-cols-2 gap-8 mb-10">
-                  {/* Date Input */}
                   <div>
-                    <label className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-3">
-                      {t.apptDate}
-                    </label>
+                    <label className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-3">{t.apptDate}</label>
                     <div className="relative">
                       <Calendar className="w-5 h-5 text-slate-400 absolute left-4 top-3.5 pointer-events-none" />
                       <input
                         type="date"
                         value={bookingDate}
                         min={new Date().toISOString().split("T")[0]}
-                        onChange={(e) => setBookingDate(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-bold text-slate-700 transition-all shadow-sm hover:shadow-md"
+                        onChange={(e) => {
+                          setBookingDate(e.target.value);
+                          setBookingTime(""); // Reset time on date change
+                        }}
+                        className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-bold text-slate-700 transition-all"
                       />
                     </div>
                   </div>
 
-                  {/* Time Slots */}
                   <div>
-                    <label className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-3">
-                      {t.availSlot}
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {AVAILABLE_TIME_SLOTS.map((slot) => {
-                        const isSelected = bookingTime === slot;
-                        return (
-                          <button
-                            key={slot}
-                            type="button"
-                            onClick={() => setBookingTime(slot)}
-                            className={`flex items-center justify-center gap-2 py-3 px-3 rounded-2xl border-2 text-sm font-bold transition-all duration-300 ${
-                              isSelected
-                                ? "border-pink-400 bg-pink-50 text-pink-700 shadow-md shadow-pink-100 transform scale-105"
-                                : "border-white/60 bg-white/40 hover:bg-white hover:border-pink-200 text-slate-500 hover:shadow-sm"
-                            }`}
-                          >
-                            <Clock className="w-4 h-4" />
-                            <span>{slot}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <label className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-3">{t.availSlot}</label>
+                    {availableSlotsForDate.length > 0 ? (
+                      <div className="grid grid-cols-2 gap-3">
+                        {availableSlotsForDate.map((slot) => {
+                          const isSelected = bookingTime === slot;
+                          return (
+                            <button
+                              key={slot}
+                              type="button"
+                              onClick={() => setBookingTime(slot)}
+                              className={`flex items-center justify-center gap-2 py-3 px-3 rounded-2xl border-2 text-sm font-bold transition-all duration-300 ${isSelected ? "border-pink-400 bg-pink-50 text-pink-700 shadow-md shadow-pink-100 transform scale-105" : "border-white/60 bg-white/40 hover:bg-white hover:border-pink-200 text-slate-500"}`}
+                            >
+                              <Clock className="w-4 h-4" />
+                              <span>{slot}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="bg-orange-50 border border-orange-200 text-orange-700 text-sm font-bold p-4 rounded-2xl flex flex-col items-center justify-center text-center">
+                        <XCircle className="w-6 h-6 mb-2 opacity-50" />
+                        {t.noSlots}
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between pt-6 border-t border-slate-200/60">
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="flex items-center gap-2 text-slate-500 hover:text-slate-800 font-bold px-4 py-2 rounded-full hover:bg-white/50 transition-colors"
-                  >
+                  <button type="button" onClick={() => setStep(1)} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 font-bold px-4 py-2 rounded-full hover:bg-white/50 transition-colors">
                     <ArrowLeft className="w-4 h-4" />
                     <span>{t.back}</span>
                   </button>
-                  <button
-                    type="button"
-                    disabled={!bookingDate || !bookingTime}
-                    onClick={() => setStep(3)}
-                    className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 disabled:opacity-50 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-pink-500/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
-                  >
+                  <button type="button" disabled={!bookingDate || !bookingTime} onClick={() => setStep(3)} className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 disabled:opacity-50 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-pink-500/20 transition-all duration-300 hover:-translate-y-0.5">
                     <span>{t.ownerPetDetails}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
@@ -579,132 +468,72 @@ export default function Home() {
               </section>
             )}
 
-            {/* STEP 3: PET & OWNER FORM */}
             {step === 3 && (
-              <form
-                onSubmit={handleSubmitBooking}
-                className="glass-panel rounded-3xl p-6 sm:p-10 animate-fade-up relative z-10"
-              >
+              <form onSubmit={handleSubmitBooking} className="glass-panel rounded-3xl p-6 sm:p-10 animate-fade-up relative z-10">
                 <h2 className="text-xl font-extrabold text-slate-800 mb-2">{t.ownerPetDetails}</h2>
-                <p className="text-sm text-slate-500 font-medium mb-8">
-                  {t.almostDone}
-                </p>
+                <p className="text-sm text-slate-500 font-medium mb-8">{t.almostDone}</p>
 
-                {/* Pet Information */}
                 <div className="mb-8">
-                  <h3 className="text-xs font-black uppercase tracking-widest text-pink-700 bg-pink-100/80 px-3 py-1.5 rounded-lg inline-block mb-4 shadow-sm border border-pink-200">
-                    {t.petInfo}
-                  </h3>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-pink-700 bg-pink-100/80 px-3 py-1.5 rounded-lg inline-block mb-4 border border-pink-200">{t.petInfo}</h3>
                   <div className="grid sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="text-xs font-bold text-slate-500 block mb-2">
-                        {t.petName}
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder={t.petNamePh}
-                        value={petName}
-                        onChange={(e) => setPetName(e.target.value)}
-                        className="w-full px-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400 shadow-sm"
-                      />
+                      <label className="text-xs font-bold text-slate-500 block mb-2">{t.petName}</label>
+                      <input type="text" required placeholder={t.petNamePh} value={petName} onChange={(e) => setPetName(e.target.value)} className="w-full px-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400" />
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-slate-500 block mb-2">
-                        {t.breed}
-                      </label>
-                      <input
-                        type="text"
-                        placeholder={t.breedPh}
-                        value={petBreed}
-                        onChange={(e) => setPetBreed(e.target.value)}
-                        className="w-full px-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400 shadow-sm"
-                      />
+                      <label className="text-xs font-bold text-slate-500 block mb-2">{t.breed}</label>
+                      <input type="text" placeholder={t.breedPh} value={petBreed} onChange={(e) => setPetBreed(e.target.value)} className="w-full px-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400" />
                     </div>
                   </div>
                 </div>
 
-                {/* Owner Information */}
                 <div className="mb-8">
-                  <h3 className="text-xs font-black uppercase tracking-widest text-pink-700 bg-pink-100/80 px-3 py-1.5 rounded-lg inline-block mb-4 shadow-sm border border-pink-200">
-                    {t.contactInfo}
-                  </h3>
-                  <div className="grid sm:grid-cols-2 gap-5">
+                  <h3 className="text-xs font-black uppercase tracking-widest text-pink-700 bg-pink-100/80 px-3 py-1.5 rounded-lg inline-block mb-4 border border-pink-200">{t.contactInfo}</h3>
+                  <div className="grid sm:grid-cols-2 gap-5 mb-5">
                     <div>
-                      <label className="text-xs font-bold text-slate-500 block mb-2">
-                        {t.fullName}
-                      </label>
+                      <label className="text-xs font-bold text-slate-500 block mb-2">{t.fullName}</label>
                       <div className="relative">
                         <User className="w-5 h-5 text-slate-400 absolute left-4 top-3.5" />
-                        <input
-                          type="text"
-                          required
-                          placeholder={t.fullNamePh}
-                          value={ownerName}
-                          onChange={(e) => setOwnerName(e.target.value)}
-                          className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400 shadow-sm"
-                        />
+                        <input type="text" required placeholder={t.fullNamePh} value={ownerName} onChange={(e) => setOwnerName(e.target.value)} className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400" />
                       </div>
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-slate-500 block mb-2">
-                        {t.phone}
-                      </label>
+                      <label className="text-xs font-bold text-slate-500 block mb-2">{t.phone}</label>
                       <div className="relative">
                         <Phone className="w-5 h-5 text-slate-400 absolute left-4 top-3.5" />
-                        <input
-                          type="tel"
-                          required
-                          placeholder={t.phonePh}
-                          value={ownerPhone}
-                          onChange={(e) => setOwnerPhone(e.target.value)}
-                          className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400 shadow-sm"
-                        />
+                        <input type="tel" required placeholder={t.phonePh} value={ownerPhone} onChange={(e) => setOwnerPhone(e.target.value)} className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400" />
                       </div>
+                    </div>
+                  </div>
+                  {/* Email Input */}
+                  <div>
+                    <label className="text-xs font-bold text-slate-500 block mb-2">{t.email}</label>
+                    <div className="relative">
+                      <Mail className="w-5 h-5 text-slate-400 absolute left-4 top-3.5" />
+                      <input type="email" required placeholder={t.emailPh} value={ownerEmail} onChange={(e) => setOwnerEmail(e.target.value)} className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400" />
                     </div>
                   </div>
                 </div>
 
-                {/* Special Notes */}
                 <div className="mb-8">
-                  <label className="text-xs font-bold text-slate-500 block mb-2">
-                    {t.notes}
-                  </label>
-                  <textarea
-                    rows={2}
-                    placeholder={t.notesPh}
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    className="w-full px-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-medium text-slate-700 transition-all placeholder:text-slate-400 shadow-sm"
-                  />
+                  <label className="text-xs font-bold text-slate-500 block mb-2">{t.notes}</label>
+                  <textarea rows={2} placeholder={t.notesPh} value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full px-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-medium text-slate-700 transition-all placeholder:text-slate-400" />
                 </div>
 
-                {/* Summary Box */}
-                <div className="bg-white/80 rounded-2xl p-5 border-2 border-slate-100 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+                <div className="bg-white/80 rounded-2xl p-5 border-2 border-slate-100 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <span className="font-extrabold text-slate-800 text-lg">{translateService(selectedService.id, lang)}</span>
-                    <span className="text-slate-500 block sm:inline sm:ml-2 font-medium">
-                      ({bookingDate} at {bookingTime})
-                    </span>
+                    <span className="text-slate-500 block sm:inline sm:ml-2 font-medium">({bookingDate} at {bookingTime})</span>
                   </div>
-                  <div className="font-black text-xl text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400">
-                    {t.total} ${selectedService.price}
-                  </div>
+                  <div className="font-black text-xl text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400">{t.total} ${selectedService.price}</div>
                 </div>
 
                 <div className="flex items-center justify-between pt-6 border-t border-slate-200/60">
-                  <button
-                    type="button"
-                    onClick={() => setStep(2)}
-                    className="flex items-center gap-2 text-slate-500 hover:text-slate-800 font-bold px-4 py-2 rounded-full hover:bg-white/50 transition-colors"
-                  >
+                  <button type="button" onClick={() => setStep(2)} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 font-bold px-4 py-2 rounded-full hover:bg-white/50 transition-colors">
                     <ArrowLeft className="w-4 h-4" />
                     <span>{t.back}</span>
                   </button>
-                  <button
-                    type="submit"
-                    className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-pink-500/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
-                  >
+                  <button type="submit" className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-pink-500/20 transition-all hover:-translate-y-0.5">
                     <CheckCircle2 className="w-5 h-5" />
                     <span>{t.confirm}</span>
                   </button>
@@ -712,27 +541,21 @@ export default function Home() {
               </form>
             )}
 
-            {/* STEP 4: SUCCESS RECEIPT */}
             {step === 4 && lastBooking && (
               <div className="glass-panel rounded-3xl shadow-xl border border-white p-8 sm:p-12 text-center max-w-xl mx-auto animate-fade-up relative z-10">
-                <div className="w-20 h-20 bg-gradient-to-tr from-green-400 to-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-500/30 animate-pulse-slow">
+                <div className="w-20 h-20 bg-gradient-to-tr from-amber-400 to-orange-400 text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-amber-500/30 animate-pulse-slow">
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
                 <h2 className="text-3xl font-black text-slate-800">{t.confirmed}</h2>
                 <p className="text-base text-slate-500 mt-2 mb-8 font-medium">
-                  {t.lookForward} <span className="font-bold text-pink-500">{lastBooking.petName}</span> {t.soon}
+                  {t.lookForward} <span className="font-bold text-pink-500">{lastBooking.petName}</span>. {t.soon}
                 </p>
 
-                {/* Receipt Card */}
-                <div className="bg-white/80 rounded-2xl p-6 border-2 border-pink-100 text-left mb-8 space-y-3.5 text-sm text-slate-700 shadow-sm relative overflow-hidden">
+                <div className="bg-white/80 rounded-2xl p-6 border-2 border-pink-100 text-left mb-8 space-y-3.5 text-sm text-slate-700 relative overflow-hidden">
                   <div className="absolute -right-4 -top-4 text-6xl opacity-5 pointer-events-none">🐾</div>
                   <div className="flex justify-between border-b border-pink-100 pb-3">
                     <span className="font-bold text-slate-500 uppercase tracking-wider text-xs">{t.bookingId}</span>
                     <span className="font-mono font-black text-slate-800 bg-slate-100 px-2 py-0.5 rounded">{lastBooking.id}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-bold text-slate-500 uppercase tracking-wider text-xs">Thú Cưng:</span>
-                    <span className="font-bold text-slate-800">{lastBooking.petName} <span className="text-slate-400 font-medium">({lastBooking.petType})</span></span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-bold text-slate-500 uppercase tracking-wider text-xs">{t.service}</span>
@@ -742,10 +565,6 @@ export default function Home() {
                     <span className="font-bold text-slate-500 uppercase tracking-wider text-xs">{t.dateSlot}</span>
                     <span className="font-bold text-slate-800">{lastBooking.date} • {lastBooking.timeSlot}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="font-bold text-slate-500 uppercase tracking-wider text-xs">{t.customer}</span>
-                    <span className="font-bold text-slate-800">{lastBooking.ownerName}</span>
-                  </div>
                   <div className="flex justify-between border-t border-pink-100 pt-3 mt-2 font-black text-base text-slate-800">
                     <span>{t.estTotal}</span>
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400">${lastBooking.servicePrice}</span>
@@ -753,16 +572,10 @@ export default function Home() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <button
-                    onClick={handleReset}
-                    className="flex-1 py-4 px-6 rounded-full border-2 border-white/60 bg-white/40 hover:bg-white font-bold text-sm text-slate-700 transition-all shadow-sm"
-                  >
+                  <button onClick={handleReset} className="flex-1 py-4 px-6 rounded-full border-2 border-white/60 bg-white/40 hover:bg-white font-bold text-sm text-slate-700 transition-all">
                     {t.bookAnother}
                   </button>
-                  <button
-                    onClick={() => setActiveTab("manage")}
-                    className="flex-1 py-4 px-6 rounded-full bg-slate-800 hover:bg-slate-900 font-bold text-sm text-white shadow-lg transition-all"
-                  >
+                  <button onClick={() => setActiveTab("manage")} className="flex-1 py-4 px-6 rounded-full bg-slate-800 hover:bg-slate-900 font-bold text-sm text-white shadow-lg transition-all">
                     {t.viewAll}
                   </button>
                 </div>
@@ -771,23 +584,14 @@ export default function Home() {
           </div>
         )}
 
-        {/* TAB 2: APPOINTMENT MANAGEMENT */}
         {activeTab === "manage" && (
-          <section className="glass-panel rounded-3xl shadow-sm border border-white p-6 sm:p-10 animate-fade-up relative z-10">
+          <section className="glass-panel rounded-3xl p-6 sm:p-10 animate-fade-up relative z-10">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-slate-200/60 pb-6">
               <div>
                 <h2 className="text-2xl font-black text-slate-800">{t.manageAppt}</h2>
-                <p className="text-sm text-slate-500 mt-1 font-medium">
-                  {t.manageDesc}
-                </p>
+                <p className="text-sm text-slate-500 mt-1 font-medium">{t.manageDesc}</p>
               </div>
-              <button
-                onClick={() => {
-                  setActiveTab("book");
-                  setStep(1);
-                }}
-                className="bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white text-sm font-bold px-6 py-3 rounded-full shadow-lg shadow-pink-500/20 hover:shadow-xl hover:-translate-y-0.5 transition-all self-start sm:self-auto"
-              >
+              <button onClick={() => { setActiveTab("book"); setStep(1); }} className="bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white text-sm font-bold px-6 py-3 rounded-full shadow-lg transition-all self-start sm:self-auto hover:-translate-y-0.5">
                 {t.newBooking}
               </button>
             </div>
@@ -801,54 +605,33 @@ export default function Home() {
             ) : (
               <div className="space-y-4">
                 {savedBookings.map((b) => (
-                  <div
-                    key={b.id}
-                    className="bg-white/70 border-2 border-white rounded-2xl p-5 hover:shadow-md hover:bg-white transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-5"
-                  >
+                  <div key={b.id} className="bg-white/70 border-2 border-white rounded-2xl p-5 hover:shadow-md hover:bg-white transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-5">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-100 to-orange-50 text-pink-500 border border-pink-100 flex items-center justify-center font-bold text-xl shrink-0 shadow-sm">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-100 to-orange-50 text-pink-500 border border-pink-100 flex items-center justify-center font-bold text-xl shrink-0">
                         {b.petType === "dog" ? "🐶" : "🐱"}
                       </div>
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-extrabold text-slate-800 text-lg">{b.petName}</span>
-                          <span className="text-[10px] bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full font-bold tracking-wide uppercase">
-                            {b.petBreed}
-                          </span>
                           <span className="text-[10px] font-mono text-slate-400 bg-white border border-slate-100 px-2 py-0.5 rounded">ID: {b.id}</span>
                         </div>
-                        <div className="text-sm text-slate-600 font-bold mb-2">
-                          {translateService(b.serviceId, lang)} • <span className="text-pink-500">${b.servicePrice}</span>
+                        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500 font-medium mt-2">
+                          <span className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-md border border-slate-100"><Calendar className="w-4 h-4 text-pink-400" /> {b.date}</span>
+                          <span className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-md border border-slate-100"><Clock className="w-4 h-4 text-pink-400" /> {b.timeSlot}</span>
                         </div>
-                        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500 font-medium">
-                          <span className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-md border border-slate-100">
-                            <Calendar className="w-4 h-4 text-pink-400" /> {b.date}
-                          </span>
-                          <span className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-md border border-slate-100">
-                            <Clock className="w-4 h-4 text-pink-400" /> {b.timeSlot}
-                          </span>
-                          <span className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-md border border-slate-100">
-                            <User className="w-4 h-4 text-pink-400" /> {b.ownerName} <span className="text-slate-400">({b.ownerPhone})</span>
-                          </span>
-                        </div>
-                        {b.notes && (
-                          <p className="text-[11px] text-slate-500 font-medium mt-3 bg-pink-50/50 p-2.5 rounded-lg border border-pink-100/50">
-                            <strong className="text-pink-600">{t.note}</strong> {b.notes}
-                          </p>
-                        )}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3 self-end md:self-center">
-                      <span className={`text-xs font-bold px-3 py-1.5 rounded-full border shadow-sm flex items-center gap-1 ${b.status === 'confirmed' ? 'text-green-700 bg-green-50 border-green-200' : 'text-amber-700 bg-amber-50 border-amber-200'}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${b.status === 'confirmed' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
-                        {b.status === 'confirmed' ? t.confirmedTag : t.pendingTag}
+                      <span className={`text-xs font-bold px-3 py-1.5 rounded-full border shadow-sm flex items-center gap-1 ${
+                        b.status === 'confirmed' ? 'text-green-700 bg-green-50 border-green-200' : 
+                        b.status === 'rejected' ? 'text-red-700 bg-red-50 border-red-200' : 
+                        'text-amber-700 bg-amber-50 border-amber-200'
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${b.status === 'confirmed' ? 'bg-green-500' : b.status === 'rejected' ? 'bg-red-500' : 'bg-amber-500 animate-pulse'}`}></span>
+                        {b.status === 'confirmed' ? t.confirmedTag : b.status === 'rejected' ? t.rejectedTag : t.pendingTag}
                       </span>
-                      <button
-                        onClick={() => handleDeleteBooking(b.id)}
-                        title="Cancel Appointment"
-                        className="p-2.5 text-slate-400 hover:text-white hover:bg-red-500 rounded-xl transition-all duration-300 shadow-sm"
-                      >
+                      <button onClick={() => handleDeleteBooking(b.id)} title="Cancel Appointment" className="p-2.5 text-slate-400 hover:text-white hover:bg-red-500 rounded-xl transition-all shadow-sm">
                         <Trash2 className="w-5 h-5" />
                       </button>
                     </div>
@@ -859,19 +642,10 @@ export default function Home() {
           </section>
         )}
       </div>
-
-      {/* Spa Footer */}
+      
+      {/* Footer */}
       <footer className="mt-20 text-center text-xs text-slate-400 border-t border-slate-200/50 pt-8 pb-4 relative z-10">
-        <div className="flex items-center justify-center gap-5 mb-3 font-medium">
-          <span className="flex items-center gap-1.5">
-            <MapPin className="w-4 h-4 text-pink-400" /> 123 Pet Haven Ave, District 1
-          </span>
-          <span className="text-slate-300">•</span>
-          <span className="flex items-center gap-1.5">
-            <Clock3 className="w-4 h-4 text-pink-400" /> Open Daily: 8:00 AM – 7:00 PM
-          </span>
-        </div>
-        <p className="font-semibold text-slate-400">© {new Date().getFullYear()} PurrfectClinic. Built with Next.js & Tailwind CSS.</p>
+        <p className="font-semibold text-slate-400">© {new Date().getFullYear()} PurrfectClinic.</p>
       </footer>
     </main>
   );
