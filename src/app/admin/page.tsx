@@ -155,14 +155,6 @@ export default function AdminPage() {
     await syncToDB(bookings, updated);
   };
 
-  const saveAvailabilityToStorage = (updated: Record<string, string[]>) => {
-    setCustomAvailability(updated);
-    try {
-      localStorage.setItem("purrfectclinic_availability", JSON.stringify(updated));
-      window.dispatchEvent(new Event('storage'));
-    } catch {}
-  };
-
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (username === "admin" && password === "purrfectadmin") {
