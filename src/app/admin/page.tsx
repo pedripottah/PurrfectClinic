@@ -100,15 +100,15 @@ export default function AdminPage() {
 
   const t = DICT_ADMIN[lang];
 
-    const loadData = async () => {
+  const loadData = () => {
     try {
-      const res = await fetch('/api/db');
-      if (!res.ok) return;
-      const db = await res.json();
-      setBookings(db.bookings || []);
-      setCustomAvailability(db.availability || {});
+      const storedBookings = localStorage.getItem("purrfectclinic_bookings");
+      if (storedBookings) setBookings(JSON.parse(storedBookings));
+
+      const storedAvailability = localStorage.getItem("purrfectclinic_availability");
+      if (storedAvailability) setCustomAvailability(JSON.parse(storedAvailability));
     } catch {
-      console.error('Could not load from DB');
+      console.error("Could not load from local storage");
     }
   };
 
@@ -121,13 +121,8 @@ export default function AdminPage() {
     const storedLang = localStorage.getItem("purrfectclinic_admin_lang");
     if (storedLang === "vi" || storedLang === "en") setLang(storedLang);
 
-    const interval = setInterval(() => {
-      if (sessionStorage.getItem("adminAuth") === "true") {
-        loadData();
-      }
-    }, 3000);
-
-    return () => clearInterval(interval);
+    window.addEventListener("storage", loadData);
+    return () => window.removeEventListener("storage", loadData);
   }, []);
 
   const changeLang = (l: "en" | "vi") => {
@@ -135,24 +130,20 @@ export default function AdminPage() {
     localStorage.setItem("purrfectclinic_admin_lang", l);
   };
 
-  const syncToDB = async (updatedBookings: Booking[], updatedAvailability: Record<string, string[]>) => {
+  const saveBookingsToStorage = (updated: Booking[]) => {
+    setBookings(updated);
     try {
-      await fetch('/api/db', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookings: updatedBookings, availability: updatedAvailability })
-      });
+      localStorage.setItem("purrfectclinic_bookings", JSON.stringify(updated));
+      window.dispatchEvent(new Event('storage'));
     } catch {}
   };
 
-  const saveBookingsToStorage = async (updated: Booking[]) => {
-    setBookings(updated);
-    await syncToDB(updated, customAvailability);
-  };
-
-  const saveAvailabilityToStorage = async (updated: Record<string, string[]>) => {
+  const saveAvailabilityToStorage = (updated: Record<string, string[]>) => {
     setCustomAvailability(updated);
-    await syncToDB(bookings, updated);
+    try {
+      localStorage.setItem("purrfectclinic_availability", JSON.stringify(updated));
+      window.dispatchEvent(new Event('storage'));
+    } catch {}
   };
 
   const handleLogin = (e: React.FormEvent) => {

@@ -177,38 +177,38 @@ export default function Home() {
   const [savedBookings, setSavedBookings] = useState<Booking[]>([]);
   const [customAvailability, setCustomAvailability] = useState<Record<string, string[]>>({});
 
-    const loadData = async () => {
+  const loadData = () => {
     try {
-      const res = await fetch('/api/db');
-      if (!res.ok) return;
-      const db = await res.json();
-      setSavedBookings(db.bookings || []);
-      setCustomAvailability(db.availability || {});
+      const storedBookings = localStorage.getItem("purrfectclinic_bookings");
+      if (storedBookings) setSavedBookings(JSON.parse(storedBookings));
+
+      const storedAvailability = localStorage.getItem("purrfectclinic_availability");
+      if (storedAvailability) setCustomAvailability(JSON.parse(storedAvailability));
     } catch {
-      console.error('Could not load from DB');
+      console.error("Could not load from local storage");
     }
   };
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(loadData, 3000); // Polling every 3s for real-time cloud sync
+    window.addEventListener("storage", loadData); // Sync live when admin changes things
     
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    setBookingDate(tomorrow.toISOString().split('T')[0]);
+    setBookingDate(tomorrow.toISOString().split("T")[0]);
 
-    return () => clearInterval(interval);
+    return () => window.removeEventListener("storage", loadData);
   }, []);
 
-  const saveBookingsToStorage = async (updated: Booking[]) => {
+  const saveBookingsToStorage = (updated: Booking[]) => {
     setSavedBookings(updated);
     try {
-      await fetch('/api/db', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookings: updated, availability: customAvailability })
-      });
-    } catch {}
+      localStorage.setItem("purrfectclinic_bookings", JSON.stringify(updated));
+      // Dispatch storage event for same-window updates (if needed)
+      window.dispatchEvent(new Event('storage'));
+    } catch {
+      console.error("Could not save to local storage");
+    }
   };
 
   const handleSubmitBooking = (e: React.FormEvent) => {
