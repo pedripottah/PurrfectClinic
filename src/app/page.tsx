@@ -267,7 +267,7 @@ export default function Home() {
     : AVAILABLE_TIME_SLOTS;
 
   const bookedSlots = savedBookings
-    .filter(b => b.date === bookingDate && (b.status === 'pending' || b.status === 'confirmed'))
+    .filter(b => b.date === bookingDate && (b.status === 'confirmed'))
     .map(b => b.timeSlot);
     
   const availableSlotsForDate = baseSlots.filter(s => !bookedSlots.includes(s));
@@ -348,11 +348,11 @@ export default function Home() {
                 <div className="mb-8">
                   <label className="text-xs font-black uppercase tracking-widest text-slate-400 block mb-3">{t.choosePet}</label>
                   <div className="grid grid-cols-2 gap-4 max-w-md">
-                    <button type="button" onClick={() => setPetType("dog")} className={`flex items-center justify-center gap-3 p-4 rounded-2xl border-2 font-bold transition-all duration-300 ${petType === "dog" ? "border-pink-400 bg-white shadow-lg shadow-pink-100 transform scale-105 text-slate-800" : "border-white/60 bg-white/40 hover:bg-white hover:border-pink-200 text-slate-500"}`}>
+                    <button type="button" onClick={() => setPetType("dog")} className={`flex items-center justify-center gap-3 p-4 rounded-2xl border-2 font-bold transition-all duration-300 ${petType === "dog" ? "border-pink-400 bg-white shadow-lg shadow-pink-100 transform scale-105 text-slate-800" : "border-slate-200 bg-white/70 hover:bg-white hover:border-pink-300 hover:shadow-md text-slate-600"}`}>
                       <Dog className={`w-6 h-6 transition-colors ${petType === "dog" ? "text-pink-500" : "text-slate-400"}`} />
                       <span>{t.dog}</span>
                     </button>
-                    <button type="button" onClick={() => setPetType("cat")} className={`flex items-center justify-center gap-3 p-4 rounded-2xl border-2 font-bold transition-all duration-300 ${petType === "cat" ? "border-pink-400 bg-white shadow-lg shadow-pink-100 transform scale-105 text-slate-800" : "border-white/60 bg-white/40 hover:bg-white hover:border-pink-200 text-slate-500"}`}>
+                    <button type="button" onClick={() => setPetType("cat")} className={`flex items-center justify-center gap-3 p-4 rounded-2xl border-2 font-bold transition-all duration-300 ${petType === "cat" ? "border-pink-400 bg-white shadow-lg shadow-pink-100 transform scale-105 text-slate-800" : "border-slate-200 bg-white/70 hover:bg-white hover:border-pink-300 hover:shadow-md text-slate-600"}`}>
                       <Cat className={`w-6 h-6 transition-colors ${petType === "cat" ? "text-pink-500" : "text-slate-400"}`} />
                       <span>{t.cat}</span>
                     </button>
@@ -365,7 +365,7 @@ export default function Home() {
                     {SPA_SERVICES.map((srv) => {
                       const isSelected = selectedService.id === srv.id;
                       return (
-                        <div key={srv.id} onClick={() => setSelectedService(srv)} className={`relative cursor-pointer rounded-3xl border-2 p-5 transition-all duration-300 flex flex-col justify-between ${isSelected ? "border-pink-400 bg-white shadow-xl shadow-pink-100 transform -translate-y-1" : "border-white/60 bg-white/50 hover:bg-white hover:border-pink-200 hover:-translate-y-1"}`}>
+                        <div key={srv.id} onClick={() => setSelectedService(srv)} className={`relative cursor-pointer rounded-3xl border-2 p-5 transition-all duration-300 flex flex-col justify-between ${isSelected ? "border-pink-400 bg-white shadow-xl shadow-pink-100 transform -translate-y-1" : "border-slate-200 bg-white/70 hover:bg-white hover:border-pink-300 hover:shadow-md hover:-translate-y-1"}`}>
                           {srv.popular && <span className="absolute -top-3 right-5 bg-gradient-to-r from-pink-500 to-orange-400 text-white text-[10px] font-black px-3 py-1 rounded-full tracking-wider shadow-sm animate-pulse-slow">{t.popular}</span>}
                           <div>
                             <div className="flex items-center gap-3 mb-3">
@@ -422,7 +422,7 @@ export default function Home() {
                           setBookingDate(e.target.value);
                           setBookingTime(""); // Reset time on date change
                         }}
-                        className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-bold text-slate-700 transition-all"
+                        className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 border-slate-200 bg-white/70 shadow-sm focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-bold text-slate-700 transition-all"
                       />
                     </div>
                   </div>
@@ -438,7 +438,7 @@ export default function Home() {
                               key={slot}
                               type="button"
                               onClick={() => setBookingTime(slot)}
-                              className={`flex items-center justify-center gap-2 py-3 px-3 rounded-2xl border-2 text-sm font-bold transition-all duration-300 ${isSelected ? "border-pink-400 bg-pink-50 text-pink-700 shadow-md shadow-pink-100 transform scale-105" : "border-white/60 bg-white/40 hover:bg-white hover:border-pink-200 text-slate-500"}`}
+                              className={`flex items-center justify-center gap-2 py-3 px-3 rounded-2xl border-2 text-sm font-bold transition-all duration-300 ${isSelected ? "border-pink-400 bg-pink-50 text-pink-700 shadow-md shadow-pink-100 transform scale-105" : "border-slate-200 bg-white/70 hover:bg-white hover:border-pink-300 hover:shadow-md text-slate-600"}`}
                             >
                               <Clock className="w-4 h-4" />
                               <span>{slot}</span>
@@ -478,11 +478,11 @@ export default function Home() {
                   <div className="grid sm:grid-cols-2 gap-5">
                     <div>
                       <label className="text-xs font-bold text-slate-500 block mb-2">{t.petName}</label>
-                      <input type="text" required placeholder={t.petNamePh} value={petName} onChange={(e) => setPetName(e.target.value)} className="w-full px-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400" />
+                      <input type="text" required placeholder={t.petNamePh} value={petName} onChange={(e) => setPetName(e.target.value)} className="w-full px-4 py-3.5 rounded-2xl border-2 border-slate-200 bg-white/70 shadow-sm focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400" />
                     </div>
                     <div>
                       <label className="text-xs font-bold text-slate-500 block mb-2">{t.breed}</label>
-                      <input type="text" placeholder={t.breedPh} value={petBreed} onChange={(e) => setPetBreed(e.target.value)} className="w-full px-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400" />
+                      <input type="text" placeholder={t.breedPh} value={petBreed} onChange={(e) => setPetBreed(e.target.value)} className="w-full px-4 py-3.5 rounded-2xl border-2 border-slate-200 bg-white/70 shadow-sm focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400" />
                     </div>
                   </div>
                 </div>
@@ -494,14 +494,14 @@ export default function Home() {
                       <label className="text-xs font-bold text-slate-500 block mb-2">{t.fullName}</label>
                       <div className="relative">
                         <User className="w-5 h-5 text-slate-400 absolute left-4 top-3.5" />
-                        <input type="text" required placeholder={t.fullNamePh} value={ownerName} onChange={(e) => setOwnerName(e.target.value)} className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400" />
+                        <input type="text" required placeholder={t.fullNamePh} value={ownerName} onChange={(e) => setOwnerName(e.target.value)} className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-slate-200 bg-white/70 shadow-sm focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400" />
                       </div>
                     </div>
                     <div>
                       <label className="text-xs font-bold text-slate-500 block mb-2">{t.phone}</label>
                       <div className="relative">
                         <Phone className="w-5 h-5 text-slate-400 absolute left-4 top-3.5" />
-                        <input type="tel" required placeholder={t.phonePh} value={ownerPhone} onChange={(e) => setOwnerPhone(e.target.value)} className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400" />
+                        <input type="tel" required placeholder={t.phonePh} value={ownerPhone} onChange={(e) => setOwnerPhone(e.target.value)} className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-slate-200 bg-white/70 shadow-sm focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400" />
                       </div>
                     </div>
                   </div>
@@ -510,14 +510,14 @@ export default function Home() {
                     <label className="text-xs font-bold text-slate-500 block mb-2">{t.email}</label>
                     <div className="relative">
                       <Mail className="w-5 h-5 text-slate-400 absolute left-4 top-3.5" />
-                      <input type="email" required placeholder={t.emailPh} value={ownerEmail} onChange={(e) => setOwnerEmail(e.target.value)} className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400" />
+                      <input type="email" required placeholder={t.emailPh} value={ownerEmail} onChange={(e) => setOwnerEmail(e.target.value)} className="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-slate-200 bg-white/70 shadow-sm focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-semibold text-slate-700 transition-all placeholder:text-slate-400" />
                     </div>
                   </div>
                 </div>
 
                 <div className="mb-8">
                   <label className="text-xs font-bold text-slate-500 block mb-2">{t.notes}</label>
-                  <textarea rows={2} placeholder={t.notesPh} value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full px-4 py-3.5 rounded-2xl border-2 border-white/60 bg-white/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-medium text-slate-700 transition-all placeholder:text-slate-400" />
+                  <textarea rows={2} placeholder={t.notesPh} value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full px-4 py-3.5 rounded-2xl border-2 border-slate-200 bg-white/70 shadow-sm focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-medium text-slate-700 transition-all placeholder:text-slate-400" />
                 </div>
 
                 <div className="bg-white/80 rounded-2xl p-5 border-2 border-slate-100 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
