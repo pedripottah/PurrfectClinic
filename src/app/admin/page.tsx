@@ -237,12 +237,9 @@ export default function AdminPage() {
   if (!isAuth) {
     return (
       <main className="min-h-screen text-slate-800 flex items-center justify-center p-4 relative overflow-hidden bg-slate-50">
-        <div className="absolute top-20 left-10 text-4xl opacity-10 pointer-events-none">🛡️</div>
-        <div className="absolute bottom-40 right-20 text-4xl opacity-10 pointer-events-none">🔐</div>
-
         <div className="absolute top-4 right-4">
           <button onClick={() => changeLang(lang === "en" ? "vi" : "en")} className="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-2 rounded-xl shadow-sm text-xs font-bold text-slate-700 uppercase">
-            <Globe className="w-4 h-4 text-pink-500" /> {lang === "en" ? "VI" : "EN"}
+            <Globe className="w-4 h-4 text-pink-500" /> {lang.toUpperCase()}
           </button>
         </div>
 
@@ -304,7 +301,7 @@ export default function AdminPage() {
           </div>
           <div className="flex items-center gap-4">
             <button onClick={() => changeLang(lang === "en" ? "vi" : "en")} className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm text-xs font-bold text-slate-700 uppercase transition-all">
-              <Globe className="w-4 h-4 text-pink-500" /> {lang === "en" ? "VI" : "EN"}
+              <Globe className="w-4 h-4 text-pink-500" /> {lang.toUpperCase()}
             </button>
             <Link href="/" className="text-sm font-bold text-slate-500 hover:text-slate-800">{t.viewSite}</Link>
             <button onClick={handleLogout} className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-bold transition-colors">

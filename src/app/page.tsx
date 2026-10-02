@@ -284,11 +284,6 @@ export default function Home() {
   return (
     <main className="min-h-screen text-slate-800 pb-16 relative overflow-hidden">
       {/* Background Elements */}
-      <div className="absolute top-20 left-10 text-4xl animate-float opacity-40 pointer-events-none" style={{ animationDelay: '0s' }}>🐾</div>
-      <div className="absolute top-40 right-20 text-4xl animate-float opacity-40 pointer-events-none" style={{ animationDelay: '1s' }}>✨</div>
-      <div className="absolute bottom-40 left-32 text-3xl animate-float opacity-30 pointer-events-none" style={{ animationDelay: '2s' }}>🦴</div>
-      <div className="absolute top-80 right-10 text-5xl animate-float opacity-20 pointer-events-none" style={{ animationDelay: '1.5s' }}>🐟</div>
-      
       {/* Header */}
       <header className="sticky top-0 z-30 glass-nav mb-8">
         <div className="max-w-5xl mx-auto px-4 h-20 flex items-center justify-between">
@@ -302,7 +297,7 @@ export default function Home() {
           </Link>
           <div className="flex items-center gap-3">
             <button onClick={() => setLang(lang === "en" ? "vi" : "en")} className="flex items-center gap-1.5 bg-white/60 hover:bg-white backdrop-blur border border-white/60 px-3 py-2 rounded-xl shadow-sm transition-all text-xs font-bold text-slate-700 uppercase">
-              <Globe className="w-4 h-4 text-pink-500" /> {lang === "en" ? "VI" : "EN"}
+              <Globe className="w-4 h-4 text-pink-500" /> {lang.toUpperCase()}
             </button>
             <div className="hidden md:flex items-center bg-white/40 backdrop-blur-md p-1.5 rounded-2xl border border-white/50 shadow-inner">
               <button onClick={() => setActiveTab("book")} className={`px-5 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === "book" ? "bg-white text-pink-600 shadow-md transform scale-105" : "text-slate-500 hover:text-slate-800 hover:bg-white/50"}`}>
@@ -328,7 +323,7 @@ export default function Home() {
                 <p className="text-slate-600 text-sm sm:text-lg max-w-xl mx-auto font-medium">{t.subtitle}</p>
                 <div className="flex items-center justify-center gap-2 sm:gap-4 mt-8">
                   {[{ num: 1, label: t.step1 }, { num: 2, label: t.step2 }, { num: 3, label: t.step3 }].map((s) => (
-                    <div key={s.num} className="flex items-center gap-2">
+                    <div key={s.num} onClick={() => { if (s.num === 1) setStep(1); else if (s.num === 2 && selectedService) setStep(2); else if (s.num === 3 && selectedService && bookingDate && bookingTime) setStep(3); }} className={"flex items-center gap-2 " + ((s.num === 1 || (s.num === 2 && selectedService) || (s.num === 3 && selectedService && bookingDate && bookingTime)) ? "cursor-pointer" : "opacity-50 cursor-not-allowed")}>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500 ${step === s.num ? "bg-gradient-to-tr from-pink-500 to-orange-400 text-white shadow-lg shadow-pink-500/30 ring-4 ring-pink-100 transform scale-110" : step > s.num ? "bg-slate-800 text-white" : "bg-white text-slate-400 shadow-sm"}`}>
                         {step > s.num ? "✓" : s.num}
                       </div>
@@ -549,7 +544,6 @@ export default function Home() {
                 </p>
 
                 <div className="bg-white/80 rounded-2xl p-6 border-2 border-pink-100 text-left mb-8 space-y-3.5 text-sm text-slate-700 relative overflow-hidden">
-                  <div className="absolute -right-4 -top-4 text-6xl opacity-5 pointer-events-none">🐾</div>
                   <div className="flex justify-between border-b border-pink-100 pb-3">
                     <span className="font-bold text-slate-500 uppercase tracking-wider text-xs">{t.bookingId}</span>
                     <span className="font-mono font-black text-slate-800 bg-slate-100 px-2 py-0.5 rounded">{lastBooking.id}</span>
