@@ -177,38 +177,38 @@ export default function Home() {
   const [savedBookings, setSavedBookings] = useState<Booking[]>([]);
   const [customAvailability, setCustomAvailability] = useState<Record<string, string[]>>({});
 
-  const loadData = () => {
+    const loadData = async () => {
     try {
-      const storedBookings = localStorage.getItem("purrfectclinic_bookings");
-      if (storedBookings) setSavedBookings(JSON.parse(storedBookings));
-
-      const storedAvailability = localStorage.getItem("purrfectclinic_availability");
-      if (storedAvailability) setCustomAvailability(JSON.parse(storedAvailability));
+      const res = await fetch('/api/db');
+      if (!res.ok) return;
+      const db = await res.json();
+      setSavedBookings(db.bookings || []);
+      setCustomAvailability(db.availability || {});
     } catch {
-      console.error("Could not load from local storage");
+      console.error('Could not load from DB');
     }
   };
 
   useEffect(() => {
     loadData();
-    window.addEventListener("storage", loadData); // Sync live when admin changes things
+    const interval = setInterval(loadData, 3000); // Polling every 3s for real-time cloud sync
     
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    setBookingDate(tomorrow.toISOString().split("T")[0]);
+    setBookingDate(tomorrow.toISOString().split('T')[0]);
 
-    return () => window.removeEventListener("storage", loadData);
+    return () => clearInterval(interval);
   }, []);
 
-  const saveBookingsToStorage = (updated: Booking[]) => {
+  const saveBookingsToStorage = async (updated: Booking[]) => {
     setSavedBookings(updated);
     try {
-      localStorage.setItem("purrfectclinic_bookings", JSON.stringify(updated));
-      // Dispatch storage event for same-window updates (if needed)
-      window.dispatchEvent(new Event('storage'));
-    } catch {
-      console.error("Could not save to local storage");
-    }
+      await fetch('/api/db', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookings: updated, availability: customAvailability })
+      });
+    } catch {}
   };
 
   const handleSubmitBooking = (e: React.FormEvent) => {
