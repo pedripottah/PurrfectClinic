@@ -1,3 +1,4 @@
+import Link from "next/link";
 "use client";
 
 import React, { useState, useEffect } from "react";
