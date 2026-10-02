@@ -382,7 +382,7 @@ export default function Home() {
                             <p className="text-sm text-slate-500 mt-2 font-medium">{translateDesc(srv.id, lang)}</p>
                           </div>
                           <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
-                            <span className="text-xl font-black text-slate-800">${srv.price}</span>
+                            <span className="text-xl font-black text-slate-800">{srv.price.toLocaleString("vi-VN")} ₫</span>
                             <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${isSelected ? "border-pink-500 bg-gradient-to-r from-pink-500 to-orange-400 text-white scale-110" : "border-slate-300 bg-transparent"}`}>
                               {isSelected && <span className="text-sm font-bold">✓</span>}
                             </div>
@@ -394,7 +394,7 @@ export default function Home() {
                 </div>
 
                 <div className="flex justify-end pt-2">
-                  <button type="button" onClick={() => setStep(2)} className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-pink-500/20 transition-all duration-300 hover:-translate-y-0.5">
+                  <button type="button" onClick={() => setStep(2)} className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 text-white px-4 py-3 sm:px-8 sm:py-4 rounded-full font-bold shadow-lg shadow-pink-500/20 transition-all duration-300 hover:-translate-y-0.5 whitespace-nowrap text-sm sm:text-base">
                     <span>{t.chooseDateTime}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
@@ -422,7 +422,7 @@ export default function Home() {
                           setBookingDate(e.target.value);
                           setBookingTime(""); // Reset time on date change
                         }}
-                        className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 border-slate-200 bg-white/70 shadow-sm focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-bold text-slate-700 transition-all"
+                        className="w-full max-w-[100%] box-border appearance-none pl-12 pr-4 py-3 rounded-2xl border-2 border-slate-200 bg-white/70 shadow-sm focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-bold text-slate-700 transition-all"
                       />
                     </div>
                   </div>
@@ -460,7 +460,7 @@ export default function Home() {
                     <ArrowLeft className="w-4 h-4" />
                     <span>{t.back}</span>
                   </button>
-                  <button type="button" disabled={!bookingDate || !bookingTime} onClick={() => setStep(3)} className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 disabled:opacity-50 text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-pink-500/20 transition-all duration-300 hover:-translate-y-0.5">
+                  <button type="button" disabled={!bookingDate || !bookingTime} onClick={() => setStep(3)} className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 disabled:opacity-50 text-white px-4 py-3 sm:px-8 sm:py-4 rounded-full font-bold shadow-lg shadow-pink-500/20 transition-all duration-300 hover:-translate-y-0.5 whitespace-nowrap text-sm sm:text-base">
                     <span>{t.ownerPetDetails}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
@@ -525,7 +525,7 @@ export default function Home() {
                     <span className="font-extrabold text-slate-800 text-lg">{translateService(selectedService.id, lang)}</span>
                     <span className="text-slate-500 block sm:inline sm:ml-2 font-medium">({bookingDate} at {bookingTime})</span>
                   </div>
-                  <div className="font-black text-xl text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400">{t.total} ${selectedService.price}</div>
+                  <div className="font-black text-xl text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400">{t.total} {selectedService.price.toLocaleString("vi-VN")} ₫</div>
                 </div>
 
                 <div className="flex items-center justify-between pt-6 border-t border-slate-200/60">
@@ -567,7 +567,7 @@ export default function Home() {
                   </div>
                   <div className="flex justify-between border-t border-pink-100 pt-3 mt-2 font-black text-base text-slate-800">
                     <span>{t.estTotal}</span>
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400">${lastBooking.servicePrice}</span>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400">{lastBooking.servicePrice.toLocaleString("vi-VN")} ₫</span>
                   </div>
                 </div>
 

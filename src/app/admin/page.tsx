@@ -345,9 +345,9 @@ export default function AdminPage() {
               <div className="bg-gradient-to-r from-pink-500 to-orange-400 p-6 rounded-3xl shadow-sm text-white flex items-center justify-between">
                 <div>
                   <p className="text-white/80 text-sm font-bold uppercase tracking-wider mb-1">{t.confirmedRev}</p>
-                  <p className="text-3xl font-black">${bookings.reduce((sum, b) => sum + (b.status === 'confirmed' ? b.servicePrice : 0), 0)}</p>
+                  <p className="text-3xl font-black">{bookings.reduce((sum, b) => sum + (b.status === "confirmed" ? b.servicePrice : 0), 0).toLocaleString("vi-VN")} ₫</p>
                 </div>
-                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center"><span className="font-black text-xl">$</span></div>
+                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center"><span className="font-black text-xl">₫</span></div>
               </div>
             </div>
 
@@ -405,7 +405,7 @@ export default function AdminPage() {
                           </td>
                           <td className="px-6 py-4">
                             <div className="font-bold text-slate-800 truncate max-w-[150px]">{b.serviceName}</div>
-                            <div className="font-black text-pink-500">${b.servicePrice}</div>
+                            <div className="font-black text-pink-500">{b.servicePrice.toLocaleString("vi-VN")} ₫</div>
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-2">
@@ -448,7 +448,7 @@ export default function AdminPage() {
                     type="date"
                     value={availDate}
                     onChange={(e) => setAvailDate(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 border-slate-200 bg-white/70 shadow-sm focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-bold text-slate-700 transition-all"
+                    className="w-full max-w-[100%] box-border appearance-none pl-12 pr-4 py-3 rounded-2xl border-2 border-slate-200 bg-white/70 shadow-sm focus:bg-white focus:outline-none focus:ring-4 focus:ring-pink-200 focus:border-pink-400 font-bold text-slate-700 transition-all"
                   />
                 </div>
               </div>
@@ -489,7 +489,7 @@ export default function AdminPage() {
                   </div>
 
                   {/* Add Custom Time Form */}
-                  <form onSubmit={handleAddCustomTime} className="flex gap-2 mb-6">
+                  <form onSubmit={handleAddCustomTime} className="flex flex-col sm:flex-row gap-3 mb-6">
                     <input 
                       type="text" 
                       placeholder={t.customPh}
@@ -497,7 +497,7 @@ export default function AdminPage() {
                       onChange={(e) => setCustomTimeInput(e.target.value)}
                       className="flex-1 px-3 py-2 rounded-xl border-2 border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:border-pink-300"
                     />
-                    <button type="submit" className="bg-slate-800 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-slate-900 transition-colors flex items-center gap-1">
+                    <button type="submit" className="bg-slate-800 text-white px-4 py-3 sm:py-2 rounded-xl font-bold text-sm hover:bg-slate-900 transition-colors flex items-center gap-1 justify-center sm:w-auto w-full whitespace-nowrap">
                       <Plus className="w-4 h-4" /> {t.addCustom}
                     </button>
                   </form>
