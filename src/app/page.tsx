@@ -79,6 +79,7 @@ const DICT = {
     noAppt: "No appointments booked yet.",
     bookFirst: "Book your first pet spa session now!",
     confirmedTag: "Confirmed",
+    pendingTag: "Pending",
     note: "Note:"
   },
   vi: {
@@ -134,6 +135,7 @@ const DICT = {
     noAppt: "Chưa có lịch hẹn nào.",
     bookFirst: "Hãy đặt lịch spa đầu tiên cho thú cưng ngay!",
     confirmedTag: "Đã xác nhận",
+    pendingTag: "Chờ xác nhận",
     note: "Ghi chú:"
   }
 };
@@ -240,7 +242,7 @@ export default function Home() {
       ownerName: ownerName.trim(),
       ownerPhone: ownerPhone.trim(),
       notes: notes.trim(),
-      status: "confirmed",
+      status: "pending",
       createdAt: new Date().toISOString(),
     };
 
@@ -838,9 +840,9 @@ export default function Home() {
                     </div>
 
                     <div className="flex items-center gap-3 self-end md:self-center">
-                      <span className="text-xs font-bold text-green-700 bg-green-50 px-3 py-1.5 rounded-full border border-green-200 shadow-sm flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                        {t.confirmedTag}
+                      <span className={`text-xs font-bold px-3 py-1.5 rounded-full border shadow-sm flex items-center gap-1 ${b.status === 'confirmed' ? 'text-green-700 bg-green-50 border-green-200' : 'text-amber-700 bg-amber-50 border-amber-200'}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${b.status === 'confirmed' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
+                        {b.status === 'confirmed' ? t.confirmedTag : t.pendingTag}
                       </span>
                       <button
                         onClick={() => handleDeleteBooking(b.id)}

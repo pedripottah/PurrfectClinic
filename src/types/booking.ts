@@ -25,6 +25,6 @@ export interface Booking {
   ownerPhone: string;
   ownerEmail?: string;
   notes?: string;
-  status: 'confirmed' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'cancelled';
   createdAt: string;
 }
