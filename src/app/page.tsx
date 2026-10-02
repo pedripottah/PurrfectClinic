@@ -292,17 +292,14 @@ export default function Home() {
       {/* Header */}
       <header className="sticky top-0 z-30 glass-nav mb-8">
         <div className="max-w-5xl mx-auto px-4 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-pink-400 to-orange-300 flex items-center justify-center text-white shadow-lg shadow-pink-500/30 animate-pulse-slow">
               <span className="text-xl">🐾</span>
             </div>
             <div>
               <span className="font-extrabold text-xl tracking-tight text-slate-800 drop-shadow-sm">PurrfectClinic</span>
-              <span className="hidden sm:inline-block ml-3 text-xs bg-white/60 backdrop-blur-sm text-pink-700 font-bold px-3 py-1 rounded-full border border-pink-200/50 shadow-sm">
-                {t.petWellness}
-              </span>
             </div>
-          </div>
+          </Link>
           <div className="flex items-center gap-3">
             <button onClick={() => setLang(lang === "en" ? "vi" : "en")} className="flex items-center gap-1.5 bg-white/60 hover:bg-white backdrop-blur border border-white/60 px-3 py-2 rounded-xl shadow-sm transition-all text-xs font-bold text-slate-700 uppercase">
               <Globe className="w-4 h-4 text-pink-500" /> {lang === "en" ? "VI" : "EN"}
@@ -643,10 +640,7 @@ export default function Home() {
         )}
       </div>
       
-      {/* Footer */}
-      <footer className="mt-20 text-center text-xs text-slate-400 border-t border-slate-200/50 pt-8 pb-4 relative z-10">
-        <p className="font-semibold text-slate-400">© {new Date().getFullYear()} PurrfectClinic.</p>
-      </footer>
+      
     </main>
   );
 }
